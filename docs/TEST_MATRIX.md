@@ -13,6 +13,7 @@
 | A9 | YouTube privado/não listado | confirmação na plataforma | Pendente com conta |
 | A10 | Facebook Live | confirmação na plataforma | Pendente com conta |
 | A11 | gravação + uma live | arquivo e visualização | Pendente em Windows |
-| A12 | lint/typecheck/unit/build | log CI | Em execução no CI/local |
+| A12 | lint/typecheck/unit/build | log local e CI | Aprovado localmente em 05/11/2026 |
 
 O estado “Pendente” não representa falha nem aprovação. Não marque como testado sem anexar evidência real e sanitizada.
+
