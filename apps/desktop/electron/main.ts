@@ -57,8 +57,10 @@ function createMainWindow(): BrowserWindow {
 }
 
 function trustedSender(event: Electron.IpcMainInvokeEvent): void {
-  const url = event.senderFrame.url
-  const permitted = isDev ? url.startsWith(process.env.ELECTRON_RENDERER_URL ?? '') : url.startsWith('file:')
+  const url = event.senderFrame?.url
+  const permitted = Boolean(url) && (isDev
+    ? url.startsWith(process.env.ELECTRON_RENDERER_URL ?? '')
+    : url.startsWith('file:'))
   if (!permitted) throw new Error('Solicitação recusada por origem não confiável.')
 }
 
@@ -128,3 +130,4 @@ app.on('window-all-closed', () => {
 app.on('before-quit', () => {
   void presentation.cleanup()
 })
+
