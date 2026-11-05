@@ -83,7 +83,7 @@ export class ObsBridge {
     this.requireConnection()
     try {
       const [scenes, inputs, kinds, current, recording, streaming] = await Promise.all([
-        this.client.call('GetSceneList') as Promise<{ scenes: Array<{ sceneName: string }> }>,
+        this.client.call('GetSceneList') as unknown as Promise<{ scenes: Array<{ sceneName: string }> }>,
         this.client.call('GetInputList') as Promise<{ inputs: Array<{ inputName: string; inputKind: string; inputMuted?: boolean }> }>,
         this.client.call('GetInputKindList') as Promise<{ inputKinds: string[] }>,
         this.client.call('GetCurrentProgramScene') as Promise<{ currentProgramSceneName?: string; sceneName?: string }>,
@@ -131,7 +131,7 @@ export class ObsBridge {
       sceneName: input.sceneName,
       inputName: input.inputName,
       inputKind: input.inputKind,
-      inputSettings: input.settings,
+      inputSettings: input.settings as any,
       sceneItemEnabled: true
     })
     return this.refresh()
@@ -176,3 +176,4 @@ export class ObsBridge {
     return this.refresh()
   }
 }
+
