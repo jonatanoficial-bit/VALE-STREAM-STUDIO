@@ -1,0 +1,13 @@
+packages:
+  - "apps/*"
+
+overrides:
+  vite: 7.1.7
+
+# Native tooling required to compile this local Electron desktop app.
+# Keep this allowlist narrow; application dependencies do not receive install-script permission by default.
+allowBuilds:
+  electron: true
+  # This legacy Squirrel helper is not used by the NSIS/portable targets.
+  electron-winstaller: false
+  esbuild: true

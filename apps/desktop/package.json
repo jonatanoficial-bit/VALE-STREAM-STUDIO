@@ -1,0 +1,61 @@
+{
+  "name": "@vale/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./out/main/main.js",
+  "description": "VALE STREAM STUDIO para Windows",
+  "author": "Vale Games / Vale Produção",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "test": "vitest run",
+    "dist": "electron-vite build && node scripts/repair-source-map.mjs && electron-builder --win nsis portable"
+  },
+  "dependencies": {
+    "obs-websocket-js": "^5.0.7",
+    "pdfjs-dist": "^5.4.54",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@types/qrcode": "^1.5.5",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "@vitejs/plugin-react": "^5.0.2",
+    "electron": "^37.4.0",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "eslint": "^9.35.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "typescript": "^5.9.2",
+    "vite": "7.1.7",
+    "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "br.com.valegames.streamstudio",
+    "productName": "VALE STREAM STUDIO",
+    "artifactName": "VALE-STREAM-STUDIO-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "../../release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
+  }
+}
