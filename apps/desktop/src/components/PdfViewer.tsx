@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type ReactElement, useEffect, useRef, useState } from 'react'
 import * as pdfjs from 'pdfjs-dist/legacy/build/pdf.mjs'
 import workerUrl from 'pdfjs-dist/legacy/build/pdf.worker.mjs?url'
 
@@ -19,7 +19,7 @@ type Props = {
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl
 
-export function PdfViewer({ bytes, filename, fullScreen = false }: Props): JSX.Element {
+export function PdfViewer({ bytes, filename, fullScreen = false }: Props): ReactElement {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const documentRef = useRef<PdfLike | null>(null)
   const [page, setPage] = useState(1)
@@ -104,3 +104,4 @@ export function PdfViewer({ bytes, filename, fullScreen = false }: Props): JSX.E
     </section>
   )
 }
+
