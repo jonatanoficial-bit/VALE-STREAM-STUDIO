@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import QRCode from 'qrcode'
 import type { Meeting, ObsSnapshot, PresentationFile } from '../shared/contracts'
 import { PdfViewer } from './components/PdfViewer'
@@ -24,13 +24,13 @@ function errorMessage(reason: unknown): string {
   return reason instanceof Error ? reason.message : 'Ocorreu um erro inesperado.'
 }
 
-export function App(): JSX.Element {
+export function App(): ReactElement {
   const presenter = window.location.hash === '#/presenter'
   if (presenter) return <Presenter />
   return <Studio />
 }
 
-function Studio(): JSX.Element {
+function Studio(): ReactElement {
   const [view, setView] = useState<View>('home')
   const [obs, setObs] = useState<ObsSnapshot>(initialObs)
   const [meeting, setMeeting] = useState<Meeting | null>(null)
@@ -122,11 +122,11 @@ function Studio(): JSX.Element {
   )
 }
 
-function StatusChip({ label, value, good }: { label: string; value: string; good?: boolean }): JSX.Element {
+function StatusChip({ label, value, good }: { label: string; value: string; good?: boolean }): ReactElement {
   return <span className="status-chip"><i className={good ? 'status-dot ready' : 'status-dot'} /> <b>{label}</b> {value}</span>
 }
 
-function Home({ onOpen, onCreateMeeting, onOpenPresentation, obs }: { onOpen: (view: View) => void; onCreateMeeting: () => void; onOpenPresentation: () => void; obs: ObsSnapshot }): JSX.Element {
+function Home({ onOpen, onCreateMeeting, onOpenPresentation, obs }: { onOpen: (view: View) => void; onCreateMeeting: () => void; onOpenPresentation: () => void; obs: ObsSnapshot }): ReactElement {
   return <>
     <section className="hero-card">
       <div><span className="eyebrow accent">PRONTO PARA COMEÇAR</span><h2>Crie, ensine, grave e transmita <em>com controle local.</em></h2><p>Seu estúdio VALE usa o OBS como motor de mídia. Reuniões usam VDO.Ninja, um serviço externo gratuito, e lives saem diretamente do seu computador.</p></div>
@@ -147,11 +147,11 @@ function Home({ onOpen, onCreateMeeting, onOpenPresentation, obs }: { onOpen: (v
   </>
 }
 
-function OutputState({ label, active, detail }: { label: string; active: boolean; detail: string }): JSX.Element {
+function OutputState({ label, active, detail }: { label: string; active: boolean; detail: string }): ReactElement {
   return <div className="output-state"><span className={active ? 'status-dot live' : 'status-dot'} /><div><b>{label}</b><small>{detail}</small></div><strong className={active ? 'live-label' : ''}>{active ? 'ATIVA' : 'EM ESPERA'}</strong></div>
 }
 
-function Production({ obs, busy, presentation, meeting, onCreateMeeting, onOpenPresentation, onNotice }: { obs: ObsSnapshot; busy: boolean; presentation: PresentationFile | null; meeting: Meeting | null; onCreateMeeting: () => void; onOpenPresentation: () => void; onNotice: (notice: Notice) => void }): JSX.Element {
+function Production({ obs, busy, presentation, meeting, onCreateMeeting, onOpenPresentation, onNotice }: { obs: ObsSnapshot; busy: boolean; presentation: PresentationFile | null; meeting: Meeting | null; onCreateMeeting: () => void; onOpenPresentation: () => void; onNotice: (notice: Notice) => void }): ReactElement {
   const [inputName, setInputName] = useState('VALE_NovaFonte')
   const [inputKind, setInputKind] = useState('')
   const [scene, setScene] = useState('')
@@ -194,11 +194,11 @@ function Production({ obs, busy, presentation, meeting, onCreateMeeting, onOpenP
   </section>
 }
 
-function Documents({ presentation, bytes, onOpen, onNotice }: { presentation: PresentationFile | null; bytes: Uint8Array | null; onOpen: () => void; onNotice: (notice: Notice) => void }): JSX.Element {
+function Documents({ presentation, bytes, onOpen, onNotice }: { presentation: PresentationFile | null; bytes: Uint8Array | null; onOpen: () => void; onNotice: (notice: Notice) => void }): ReactElement {
   return <section className="documents-layout"><div className="documents-intro"><span className="eyebrow accent">APRESENTADOR LOCAL</span><h2>PDF, PPT e PPTX sem enviar seu arquivo à nuvem.</h2><p>PDFs são renderizados localmente. PPT/PPTX são convertidos localmente com LibreOffice, quando instalado.</p><button className="button primary" onClick={onOpen}>▤ Abrir apresentação</button>{presentation && <button className="button secondary" onClick={() => void window.vale.presentation.openPresenter().catch((reason) => onNotice({ tone: 'error', text: errorMessage(reason) }))}>Abrir janela de apresentação</button>}</div>{presentation && bytes ? <><div className="document-meta"><b>{presentation.filename}</b><span>{presentation.converted ? 'PPT/PPTX convertido localmente' : 'PDF original local'}</span>{presentation.notice && <p>{presentation.notice}</p>}</div><PdfViewer bytes={bytes} filename={presentation.filename} /></> : <div className="empty-state"><span className="large-glyph">▤</span><h3>Nenhum documento aberto</h3><p>Importe um PDF, PPT ou PPTX do seu disco. Os originais não são alterados.</p></div>}</section>
 }
 
-function Destinations({ obs, onNotice }: { obs: ObsSnapshot; onNotice: (notice: Notice) => void }): JSX.Element {
+function Destinations({ obs, onNotice }: { obs: ObsSnapshot; onNotice: (notice: Notice) => void }): ReactElement {
   const [platform, setPlatform] = useState<'youtube' | 'facebook' | 'custom'>('youtube')
   const [server, setServer] = useState('')
   const [key, setKey] = useState('')
@@ -210,7 +210,7 @@ function Destinations({ obs, onNotice }: { obs: ObsSnapshot; onNotice: (notice: 
   return <section className="destinations-layout"><article className="panel destination-form"><span className="eyebrow accent">RTMP/RTMPS DIRETO</span><h2>Configure um destino de cada vez</h2><p>Parte 1 suporta YouTube ou Facebook individualmente. Multistream simultâneo é planejado para a Parte 2, após pipeline local testado.</p><form onSubmit={configure}><label>Plataforma<select value={platform} onChange={(event) => setPlatform(event.target.value as typeof platform)}><option value="youtube">YouTube Live</option><option value="facebook">Facebook Live</option><option value="custom">RTMP personalizado</option></select></label><label>URL de ingestão RTMP/RTMPS<input required placeholder="rtmps://…" value={server} onChange={(event) => setServer(event.target.value)} /></label><label>Chave de transmissão<input required type="password" autoComplete="off" placeholder="Nunca é exibida nem registrada" value={key} onChange={(event) => setKey(event.target.value)} /></label><button className="button primary" disabled={!obs.connection.connected}>Salvar no OBS local</button></form>{configured && <p className="configured">✓ Configurado: {configured}</p>}</article><article className="panel platform-guide"><h3>Antes de iniciar</h3><ol><li>Crie uma live no painel oficial da plataforma.</li><li>Copie a URL e a chave de transmissão na conta habilitada.</li><li>Salve o destino acima e inicie a live pelo estúdio.</li><li>Confirme a publicação no painel da plataforma quando ele solicitar.</li></ol><div className="platform-links"><button onClick={() => void window.vale.app.openExternal('https://studio.youtube.com/')}>Abrir YouTube Studio</button><button onClick={() => void window.vale.app.openExternal('https://www.facebook.com/live/producer/')}>Abrir Facebook Live Producer</button></div><p className="fine-print">O aplicativo não cria permissões de conta, não contorna requisitos das plataformas e não confirma “ao vivo” até o OBS reportar a saída ativa.</p></article></section>
 }
 
-function Settings({ obs, system, onObs, onNotice }: { obs: ObsSnapshot; system: { obsExecutable?: string } | null; onObs: (value: ObsSnapshot) => void; onNotice: (notice: Notice) => void }): JSX.Element {
+function Settings({ obs, system, onObs, onNotice }: { obs: ObsSnapshot; system: { obsExecutable?: string } | null; onObs: (value: ObsSnapshot) => void; onNotice: (notice: Notice) => void }): ReactElement {
   const [host, setHost] = useState(obs.connection.host)
   const [port, setPort] = useState(String(obs.connection.port))
   const [password, setPassword] = useState('')
@@ -221,21 +221,22 @@ function Settings({ obs, system, onObs, onNotice }: { obs: ObsSnapshot; system: 
   return <section className="settings-layout"><article className="panel connection-card"><span className="eyebrow accent">MOTOR DE MÍDIA LOCAL</span><h2>Conexão OBS WebSocket</h2><p>O VALE controla somente <code>127.0.0.1</code>/<code>localhost</code>. Não exponha o OBS WebSocket na internet.</p><div className={system?.obsExecutable ? 'dependency found' : 'dependency'}><span>{system?.obsExecutable ? '✓' : '!'}</span><div><b>{system?.obsExecutable ? 'OBS Studio localizado' : 'OBS Studio não localizado'}</b><small>{system?.obsExecutable ? system.obsExecutable : 'Instale o OBS gratuito e reinicie o aplicativo.'}</small></div>{!system?.obsExecutable && <button onClick={() => void window.vale.app.openExternal('https://obsproject.com/')}>Site oficial</button>}</div><form onSubmit={connect}><label>Host<input value={host} onChange={(event) => setHost(event.target.value)} /></label><label>Porta<input type="number" min="1" max="65535" value={port} onChange={(event) => setPort(event.target.value)} /></label><label>Senha do WebSocket<input type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label><div className="form-actions"><button className="button primary">Conectar OBS</button>{obs.connection.connected && <button type="button" className="button secondary" onClick={() => void window.vale.obs.disconnect().then(onObs).catch((reason) => onNotice({ tone: 'error', text: errorMessage(reason) }))}>Desconectar</button>}</div></form></article><article className="panel settings-notes"><h3>Configuração segura</h3><ul><li>Abra OBS → Ferramentas → WebSocket Server Settings.</li><li>Ative o servidor, mantenha uma senha e use a porta 4455 ou uma porta local escolhida.</li><li>Não compartilhe senha ou chave de live em captura de tela, logs ou repositório.</li><li>Crie uma coleção/cenas VALE no OBS sem apagar seu trabalho existente.</li></ul><p className="fine-print">O sistema de credenciais do Windows protege segredos persistidos. Se essa proteção estiver indisponível, a sessão funciona, mas a chave não é salva.</p></article></section>
 }
 
-function Help(): JSX.Element {
+function Help(): ReactElement {
   return <section className="help-grid"><article className="panel"><span className="eyebrow accent">O QUE É REAL NESTA PARTE</span><h2>Parte 1 - base operacional</h2><ul className="feature-list"><li><b>OBS local:</b> conexão autenticada, cenas, fontes, mute, gravação e live com estado do OBS.</li><li><b>Apresentações:</b> PDF local e conversão PPT/PPTX por LibreOffice local.</li><li><b>Reuniões:</b> convite e diretor distintos por VDO.Ninja; chat e compartilhamento usam a interface oficial do provedor.</li><li><b>Destinos:</b> uma saída RTMP/RTMPS por vez configurada no OBS.</li></ul></article><article className="panel"><span className="eyebrow">LIMITES IMPORTANTES</span><h3>Não são promessas ocultas</h3><ul className="feature-list"><li>O VDO.Ninja é externo; disponibilidade e redes restritivas podem afetar a reunião.</li><li>Live precisa de conta habilitada, chave válida, internet e confirmação na plataforma.</li><li>Hardware, áudio do sistema e dispositivos só podem ser validados em Windows real.</li><li>Multistream YouTube + Facebook simultâneo é Parte 2, não um botão fictício.</li></ul></article><article className="panel"><h3>Roteiro de aceite manual</h3><ol><li>Conecte OBS, defina uma cena e fontes reais.</li><li>Grave dois minutos offline e reproduza o arquivo.</li><li>Abra PDF/PPTX e capture a janela do apresentador no OBS.</li><li>Crie uma sala, teste com convidado em outra rede e chat.</li><li>Faça live privada/não listada com uma conta habilitada.</li></ol></article></section>
 }
 
-function MeetingModal({ meeting, onClose, onNotice }: { meeting: Meeting; onClose: () => void; onNotice: (notice: Notice) => void }): JSX.Element {
+function MeetingModal({ meeting, onClose, onNotice }: { meeting: Meeting; onClose: () => void; onNotice: (notice: Notice) => void }): ReactElement {
   const [qr, setQr] = useState<string>()
   useEffect(() => { void QRCode.toDataURL(meeting.guestUrl, { margin: 1, width: 280, color: { dark: '#0b0e14', light: '#ffffff' } }).then(setQr).catch(() => undefined) }, [meeting.guestUrl])
   async function copy(value: string, message: string): Promise<void> { try { await navigator.clipboard.writeText(value); onNotice({ tone: 'success', text: message }) } catch { onNotice({ tone: 'error', text: 'Não foi possível acessar a área de transferência.' }) } }
   return <div className="modal-backdrop" role="presentation"><section className="meeting-modal" role="dialog" aria-modal="true" aria-label="Nova reunião"><button className="modal-close" onClick={onClose}>×</button><span className="eyebrow accent">SALA CRIADA</span><h2>Convide sua turma ou convidados</h2><p>Esta sala usa o VDO.Ninja, serviço externo gratuito. O link do convidado e o link de diretor são diferentes.</p><div className="meeting-content"><div><label>Link para convidados<div className="copy-field"><input readOnly value={meeting.guestUrl} /><button onClick={() => void copy(meeting.invitation, 'Convite copiado.')}>Copiar convite</button></div></label><label>Código forte da sala<div className="copy-field"><input readOnly value={meeting.roomId} /><button onClick={() => void copy(meeting.roomId, 'Código de sala copiado.')}>Copiar</button></div></label><div className="meeting-actions"><button className="button primary" onClick={() => void window.vale.meeting.open(meeting.directorUrl)}>Abrir como anfitrião</button><button className="button secondary" onClick={() => void window.vale.meeting.open(meeting.guestUrl)}>Testar convite</button></div></div>{qr && <figure className="qr"><img src={qr} alt="QR Code do convite" /><figcaption>Escaneie para entrar no celular</figcaption></figure>}</div><p className="provider-notice">{meeting.limitations}</p></section></div>
 }
 
-function Presenter(): JSX.Element {
+function Presenter(): ReactElement {
   const [file, setFile] = useState<PresentationFile | null>(null)
   const [bytes, setBytes] = useState<Uint8Array | null>(null)
   const [error, setError] = useState<string>()
   useEffect(() => { void (async () => { try { const current = await window.vale.presentation.current(); if (!current) throw new Error('Nenhuma apresentação está aberta no estúdio.'); setFile(current); setBytes(await window.vale.presentation.read(current.path)) } catch (reason) { setError(errorMessage(reason)) } })() }, [])
   return <main className="presenter-shell">{error ? <div className="empty-state error-state"><h2>Apresentador indisponível</h2><p>{error}</p></div> : file && bytes ? <PdfViewer bytes={bytes} filename={file.filename} fullScreen /> : <div className="empty-state"><span className="large-glyph">▤</span><p>Carregando apresentação local…</p></div>}</main>
 }
+
