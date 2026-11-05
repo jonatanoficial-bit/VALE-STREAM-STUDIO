@@ -1,1 +1,121 @@
-aW1wb3J0IHsgYXBwLCBCcm93c2VyV2luZG93LCBkaWFsb2cgfSBmcm9tICdlbGVjdHJvbicKaW1wb3J0IHsgYWNjZXNzLCBta2RpciwgcmVhZEZpbGUsIHJtIH0gZnJvbSAnbm9kZTpmcy9wcm9taXNlcycKaW1wb3J0IHsgYmFzZW5hbWUsIGV4dG5hbWUsIGpvaW4gfSBmcm9tICdub2RlOnBhdGgnCmltcG9ydCB7IGV4ZWNGaWxlIH0gZnJvbSAnbm9kZTpjaGlsZF9wcm9jZXNzJwppbXBvcnQgeyBwcm9taXNpZnkgfSBmcm9tICdub2RlOnV0aWwnCmltcG9ydCB0eXBlIHsgUHJlc2VudGF0aW9uRmlsZSB9IGZyb20gJy4uLy4uL3NoYXJlZC9jb250cmFjdHMnCgpjb25zdCBleGVjRmlsZUFzeW5jID0gcHJvbWlzaWZ5KGV4ZWNGaWxlKQpjb25zdCBhbGxvd2VkRXh0ZW5zaW9ucyA9IFsnLnBkZicsICcucHB0JywgJy5wcHR4J10KCmV4cG9ydCBjbGFzcyBQcmVzZW50YXRpb25CcmlkZ2UgewogIHByaXZhdGUgY3VycmVudEZpbGU6IFByZXNlbnRhdGlvbkZpbGUgfCBudWxsID0gbnVsbAogIHByaXZhdGUgcmVhZG9ubHkgdGVtcFJvb3QgPSBqb2luKGFwcC5nZXRQYXRoKCd0ZW1wJyksICd2YWxlLXN0cmVhbS1zdHVkaW8nKQoKICBhc3luYyBpbXBvcnRGcm9tRGlhbG9nKCk6IFByb21pc2U8UHJlc2VudGF0aW9uRmlsZSB8IG51bGw+IHsKICAgIGNvbnN0IHJlc3VsdCA9IGF3YWl0IGRpYWxvZy5zaG93T3BlbkRpYWxvZyh7CiAgICAgIHRpdGxlOiAnQWJyaXIgYXByZXNlbnRhw6fDo28gbG9jYWwnLAogICAgICBwcm9wZXJ0aWVzOiBbJ29wZW5GaWxlJ10sCiAgICAgIGZpbHRlcnM6IFt7IG5hbWU6ICdBcHJlc2VudGHDp8O1ZXMnLCBleHRlbnNpb25zOiBbJ3BkZicsICdwcHQnLCAncHB0eCddIH1dCiAgICB9KQogICAgaWYgKHJlc3VsdC5jYW5jZWxlZCB8fCAhcmVzdWx0LmZpbGVQYXRoc1swXSkgcmV0dXJuIG51bGwKICAgIHRoaXMuY3VycmVudEZpbGUgPSBhd2FpdCB0aGlzLmxvYWQocmVzdWx0LmZpbGVQYXRoc1swXSkKICAgIHJldHVybiB0aGlzLmN1cnJlbnRGaWxlCiAgfQoKICBhc3luYyBjdXJyZW50KCk6IFByb21pc2U8UHJlc2VudGF0aW9uRmlsZSB8IG51bGw+IHsKICAgIHJldHVybiB0aGlzLmN1cnJlbnRGaWxlCiAgfQoKICBhc3luYyByZWFkKHBhdGg6IHN0cmluZyk6IFByb21pc2U8VWludDhBcnJheT4gewogICAgaWYgKCF0aGlzLmN1cnJlbnRGaWxlIHx8IHBhdGggIT09IHRoaXMuY3VycmVudEZpbGUucGF0aCkgdGhyb3cgbmV3IEVycm9yKCdBIGFwcmVzZW50YcOnw6NvIHNvbGljaXRhZGEgbsOjbyBlc3TDoSBhYmVydGEgbmVzdGEgc2Vzc8Ojby4nKQogICAgcmV0dXJuIG5ldyBVaW50OEFycmF5KGF3YWl0IHJlYWRGaWxlKHBhdGgpKQogIH0KCiAgYXN5bmMgb3BlblByZXNlbnRlcihwYXJlbnQ6IEJyb3dzZXJXaW5kb3csIGxvYWQ6ICh3aW5kb3c6IEJyb3dzZXJXaW5kb3cpID0+IFByb21pc2U8dm9pZD4pOiBQcm9taXNlPHZvaWQ+IHsKICAgIGlmICghdGhpcy5jdXJyZW50RmlsZSkgdGhyb3cgbmV3IEVycm9yKCdBYnJhIHVtYSBhcHJlc2VudGHDp8OjbyBhbnRlcyBkZSBpbmljaWFyIGEgdGVsYSBkbyBhcHJlc2VudGFkb3IuJykKICAgIGNvbnN0IHdpbmRvdyA9IG5ldyBCcm93c2VyV2luZG93KHsKICAgICAgcGFyZW50LAogICAgICBtaW5XaWR0aDogODQwLAogICAgICBtaW5IZWlnaHQ6IDU2MCwKICAgICAgd2lkdGg6IDEyODAsCiAgICAgIGhlaWdodDogODAwLAogICAgICB0aXRsZTogJ1ZBTEUgU1RSRUFNIFNUVURJTyAtIEFwcmVzZW50YcOnw6NvJywKICAgICAgYmFja2dyb3VuZENvbG9yOiAnIzBiMGUxNCcsCiAgICAgIHdlYlByZWZlcmVuY2VzOiB7CiAgICAgICAgcHJlbG9hZDogam9pbihfX2Rpcm5hbWUsICcuLi9wcmVsb2FkL3ByZWxvYWQubWpzJyksCiAgICAgICAgY29udGV4dElzb2xhdGlvbjogdHJ1ZSwKICAgICAgICBub2RlSW50ZWdyYXRpb246IGZhbHNlLAogICAgICAgIHNhbmRib3g6IHRydWUKICAgICAgfQogICAgfSkKICAgIGF3YWl0IGxvYWQod2luZG93KQogIH0KCiAgYXN5bmMgY2xlYW51cCgpOiBQcm9taXNlPHZvaWQ+IHsKICAgIGF3YWl0IHJtKHRoaXMudGVtcFJvb3QsIHsgcmVjdXJzaXZlOiB0cnVlLCBmb3JjZTogdHJ1ZSB9KQogIH0KCiAgcHJpdmF0ZSBhc3luYyBsb2FkKG9yaWdpbmFsUGF0aDogc3RyaW5nKTogUHJvbWlzZTxQcmVzZW50YXRpb25GaWxlPiB7CiAgICBjb25zdCBleHQgPSBleHRuYW1lKG9yaWdpbmFsUGF0aCkudG9Mb3dlckNhc2UoKQogICAgaWYgKCFhbGxvd2VkRXh0ZW5zaW9ucy5pbmNsdWRlcyhleHQpKSB0aHJvdyBuZXcgRXJyb3IoJ1NlbGVjaW9uZSBzb21lbnRlIFBERiwgUFBUIG91IFBQVFguJykKICAgIGlmIChleHQgPT09ICcucGRmJykgewogICAgICByZXR1cm4geyBwYXRoOiBvcmlnaW5hbFBhdGgsIGZpbGVuYW1lOiBiYXNlbmFtZShvcmlnaW5hbFBhdGgpLCBraW5kOiAncGRmJywgY29udmVydGVkOiBmYWxzZSB9CiAgICB9CiAgICBjb25zdCBjb252ZXJ0ZWRQYXRoID0gYXdhaXQgdGhpcy5jb252ZXJ0V2l0aExpYnJlT2ZmaWNlKG9yaWdpbmFsUGF0aCkKICAgIHJldHVybiB7CiAgICAgIHBhdGg6IGNvbnZlcnRlZFBhdGgsCiAgICAgIGZpbGVuYW1lOiBiYXNlbmFtZShvcmlnaW5hbFBhdGgpLAogICAgICBraW5kOiBleHQuc2xpY2UoMSkgYXMgJ3BwdCcgfCAncHB0eCcsCiAgICAgIGNvbnZlcnRlZDogdHJ1ZSwKICAgICAgbm90aWNlOiAnUFBUL1BQVFggZm9pIGNvbnZlcnRpZG8gbG9jYWxtZW50ZSBwZWxvIExpYnJlT2ZmaWNlLiBBbmltYcOnw7VlcywgdsOtZGVvcyBlIGZvbnRlcyBlc3BlY2lhaXMgcG9kZW0gbsOjbyBzZXIgcHJlc2VydmFkb3M7IHVzZSBhIG9ww6fDo28gZGUgY29tcGFydGlsaGFyIGEgamFuZWxhIG9yaWdpbmFsIHNlIG5lY2Vzc8OhcmlvLicKICAgIH0KICB9CgogIHByaXZhdGUgYXN5bmMgY29udmVydFdpdGhMaWJyZU9mZmljZShpbnB1dDogc3RyaW5nKTogUHJvbWlzZTxzdHJpbmc+IHsKICAgIGNvbnN0IHNvZmZpY2UgPSBhd2FpdCB0aGlzLmZpbmRTb2ZmaWNlKCkKICAgIGlmICghc29mZmljZSkgewogICAgICB0aHJvdyBuZXcgRXJyb3IoJ0xpYnJlT2ZmaWNlIG7Do28gZm9pIGVuY29udHJhZG8uIEluc3RhbGUgZ3JhdHVpdGFtZW50ZSBwZWxvIHNpdGUgb2ZpY2lhbCBvdSBhYnJhIG8gYXJxdWl2byBvcmlnaW5hbCBlIGNvbXBhcnRpbGhlIGEgamFuZWxhIHBlbG8gT0JTLicpCiAgICB9CiAgICBhd2FpdCBta2Rpcih0aGlzLnRlbXBSb290LCB7IHJlY3Vyc2l2ZTogdHJ1ZSB9KQogICAgdHJ5IHsKICAgICAgYXdhaXQgZXhlY0ZpbGVBc3luYyhzb2ZmaWNlLCBbJy0taGVhZGxlc3MnLCAnLS1jb252ZXJ0LXRvJywgJ3BkZicsICctLW91dGRpcicsIHRoaXMudGVtcFJvb3QsIGlucHV0XSwgewogICAgICAgIHRpbWVvdXQ6IDEyMF8wMDAsCiAgICAgICAgd2luZG93c0hpZGU6IHRydWUsCiAgICAgICAgbWF4QnVmZmVyOiAxMDI0ICogMTAyNAogICAgICB9KQogICAgfSBjYXRjaCAoZXJyb3IpIHsKICAgICAgdGhyb3cgbmV3IEVycm9yKGBGYWxoYSBhbyBjb252ZXJ0ZXIgYSBhcHJlc2VudGHDp8OjbyBsb2NhbG1lbnRlOiAke2Vycm9yIGluc3RhbmNlb2YgRXJyb3IgPyBlcnJvci5tZXNzYWdlLnNsaWNlKDAsIDE4MCkgOiAnZXJybyBkZXNjb25oZWNpZG8nfWApCiAgICB9CiAgICBjb25zdCBvdXRwdXQgPSBqb2luKHRoaXMudGVtcFJvb3QsIGAke2Jhc2VuYW1lKGlucHV0LCBleHRuYW1lKGlucHV0KSl9LnBkZmApCiAgICB0cnkgewogICAgICBhd2FpdCBhY2Nlc3Mob3V0cHV0KQogICAgICByZXR1cm4gb3V0cHV0CiAgICB9IGNhdGNoIHsKICAgICAgdGhyb3cgbmV3IEVycm9yKCdPIExpYnJlT2ZmaWNlIHRlcm1pbm91IHNlbSBnZXJhciBvIFBERiBlc3BlcmFkby4gVGVudGUgYWJyaXIgbyBhcnF1aXZvIG9yaWdpbmFsIGUgY29tcGFydGlsaGFyIGEgamFuZWxhLicpCiAgICB9CiAgfQoKICBwcml2YXRlIGFzeW5jIGZpbmRTb2ZmaWNlKCk6IFByb21pc2U8c3RyaW5nIHwgdW5kZWZpbmVkPiB7CiAgICBjb25zdCBjYW5kaWRhdGVzID0gWwogICAgICAnQzpcXFByb2dyYW0gRmlsZXNcXExpYnJlT2ZmaWNlXFxwcm9ncmFtXFxzb2ZmaWNlLmV4ZScsCiAgICAgICdDOlxcUHJvZ3JhbSBGaWxlcyAoeDg2KVxcTGlicmVPZmZpY2VcXHByb2dyYW1cXHNvZmZpY2UuZXhlJwogICAgXQogICAgZm9yIChjb25zdCBjYW5kaWRhdGUgb2YgY2FuZGlkYXRlcykgewogICAgICB0cnkgewogICAgICAgIGF3YWl0IGFjY2VzcyhjYW5kaWRhdGUpCiAgICAgICAgcmV0dXJuIGNhbmRpZGF0ZQogICAgICB9IGNhdGNoIHsKICAgICAgICAvLyBDb250aW51ZSB3aXRoIHRoZSBuZXh0IGtub3duIGluc3RhbGwgbG9jYXRpb24uCiAgICAgIH0KICAgIH0KICAgIHRyeSB7CiAgICAgIGNvbnN0IHsgc3Rkb3V0IH0gPSBhd2FpdCBleGVjRmlsZUFzeW5jKCd3aGVyZS5leGUnLCBbJ3NvZmZpY2UuZXhlJ10sIHsgd2luZG93c0hpZGU6IHRydWUgfSkKICAgICAgY29uc3QgcmVzb2x2ZWQgPSBzdGRvdXQuc3BsaXQoL1xyP1xuLykuZmluZChCb29sZWFuKQogICAgICByZXR1cm4gcmVzb2x2ZWQ/LnRyaW0oKQogICAgfSBjYXRjaCB7CiAgICAgIHJldHVybiB1bmRlZmluZWQKICAgIH0KICB9Cn0K
+import { app, BrowserWindow, dialog } from 'electron'
+import { access, mkdir, readFile, rm } from 'node:fs/promises'
+import { basename, extname, join } from 'node:path'
+import { execFile } from 'node:child_process'
+import { promisify } from 'node:util'
+import type { PresentationFile } from '../../shared/contracts'
+
+const execFileAsync = promisify(execFile)
+const allowedExtensions = ['.pdf', '.ppt', '.pptx']
+
+export class PresentationBridge {
+  private currentFile: PresentationFile | null = null
+  private readonly tempRoot = join(app.getPath('temp'), 'vale-stream-studio')
+
+  async importFromDialog(): Promise<PresentationFile | null> {
+    const result = await dialog.showOpenDialog({
+      title: 'Abrir apresentação local',
+      properties: ['openFile'],
+      filters: [{ name: 'Apresentações', extensions: ['pdf', 'ppt', 'pptx'] }]
+    })
+    if (result.canceled || !result.filePaths[0]) return null
+    this.currentFile = await this.load(result.filePaths[0])
+    return this.currentFile
+  }
+
+  async current(): Promise<PresentationFile | null> {
+    return this.currentFile
+  }
+
+  async read(path: string): Promise<Uint8Array> {
+    if (!this.currentFile || path !== this.currentFile.path) throw new Error('A apresentação solicitada não está aberta nesta sessão.')
+    return new Uint8Array(await readFile(path))
+  }
+
+  async openPresenter(parent: BrowserWindow, load: (window: BrowserWindow) => Promise<void>): Promise<void> {
+    if (!this.currentFile) throw new Error('Abra uma apresentação antes de iniciar a tela do apresentador.')
+    const window = new BrowserWindow({
+      parent,
+      minWidth: 840,
+      minHeight: 560,
+      width: 1280,
+      height: 800,
+      title: 'VALE STREAM STUDIO - Apresentação',
+      backgroundColor: '#0b0e14',
+      webPreferences: {
+        preload: join(__dirname, '../preload/preload.mjs'),
+        contextIsolation: true,
+        nodeIntegration: false,
+        sandbox: true
+      }
+    })
+    await load(window)
+  }
+
+  async cleanup(): Promise<void> {
+    await rm(this.tempRoot, { recursive: true, force: true })
+  }
+
+  private async load(originalPath: string): Promise<PresentationFile> {
+    const ext = extname(originalPath).toLowerCase()
+    if (!allowedExtensions.includes(ext)) throw new Error('Selecione somente PDF, PPT ou PPTX.')
+    if (ext === '.pdf') {
+      return { path: originalPath, filename: basename(originalPath), kind: 'pdf', converted: false }
+    }
+    const convertedPath = await this.convertWithLibreOffice(originalPath)
+    return {
+      path: convertedPath,
+      filename: basename(originalPath),
+      kind: ext.slice(1) as 'ppt' | 'pptx',
+      converted: true,
+      notice: 'PPT/PPTX foi convertido localmente pelo LibreOffice. Animações, vídeos e fontes especiais podem não ser preservados; use a opção de compartilhar a janela original se necessário.'
+    }
+  }
+
+  private async convertWithLibreOffice(input: string): Promise<string> {
+    const soffice = await this.findSoffice()
+    if (!soffice) {
+      throw new Error('LibreOffice não foi encontrado. Instale gratuitamente pelo site oficial ou abra o arquivo original e compartilhe a janela pelo OBS.')
+    }
+    await mkdir(this.tempRoot, { recursive: true })
+    try {
+      await execFileAsync(soffice, ['--headless', '--convert-to', 'pdf', '--outdir', this.tempRoot, input], {
+        timeout: 120_000,
+        windowsHide: true,
+        maxBuffer: 1024 * 1024
+      })
+    } catch (error) {
+      throw new Error(`Falha ao converter a apresentação localmente: ${error instanceof Error ? error.message.slice(0, 180) : 'erro desconhecido'}`)
+    }
+    const output = join(this.tempRoot, `${basename(input, extname(input))}.pdf`)
+    try {
+      await access(output)
+      return output
+    } catch {
+      throw new Error('O LibreOffice terminou sem gerar o PDF esperado. Tente abrir o arquivo original e compartilhar a janela.')
+    }
+  }
+
+  private async findSoffice(): Promise<string | undefined> {
+    const candidates = [
+      'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
+      'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
+    ]
+    for (const candidate of candidates) {
+      try {
+        await access(candidate)
+        return candidate
+      } catch {
+        // Continue with the next known install location.
+      }
+    }
+    try {
+      const { stdout } = await execFileAsync('where.exe', ['soffice.exe'], { windowsHide: true })
+      const resolved = stdout.split(/\r?\n/).find(Boolean)
+      return resolved?.trim()
+    } catch {
+      return undefined
+    }
+  }
+}
+
