@@ -1,1 +1,66 @@
-ewogICJuYW1lIjogIkB2YWxlL2Rlc2t0b3AiLAogICJ2ZXJzaW9uIjogIjAuMS4wIiwKICAicHJpdmF0ZSI6IHRydWUsCiAgInR5cGUiOiAibW9kdWxlIiwKICAibWFpbiI6ICIuL291dC9tYWluL21haW4uanMiLAogICJkZXNjcmlwdGlvbiI6ICJWQUxFIFNUUkVBTSBTVFVESU8gcGFyYSBXaW5kb3dzIiwKICAiYXV0aG9yIjogIlZhbGUgR2FtZXMgLyBWYWxlIFByb2R1w6fDo28iLAogICJzY3JpcHRzIjogewogICAgImRldiI6ICJlbGVjdHJvbi12aXRlIGRldiIsCiAgICAiYnVpbGQiOiAiZWxlY3Ryb24tdml0ZSBidWlsZCIsCiAgICAicHJldmlldyI6ICJlbGVjdHJvbi12aXRlIHByZXZpZXciLAogICAgInR5cGVjaGVjayI6ICJ0c2MgLS1ub0VtaXQgLXAgdHNjb25maWcuanNvbiAmJiB0c2MgLS1ub0VtaXQgLXAgdHNjb25maWcubm9kZS5qc29uIiwKICAgICJsaW50IjogImVzbGludCAuIC0tZXh0IC50cywudHN4IC0tbWF4LXdhcm5pbmdzPTAiLAogICAgInRlc3QiOiAidml0ZXN0IHJ1biIsCiAgICAiZGlzdCI6ICJlbGVjdHJvbi12aXRlIGJ1aWxkICYmIG5vZGUgc2NyaXB0cy9yZXBhaXItc291cmNlLW1hcC5tanMgJiYgZWxlY3Ryb24tYnVpbGRlciAtLXdpbiBuc2lzIHBvcnRhYmxlIgogIH0sCiAgImRlcGVuZGVuY2llcyI6IHsKICAgICJvYnMtd2Vic29ja2V0LWpzIjogIl41LjAuNyIsCiAgICAicGRmanMtZGlzdCI6ICJeNS40LjU0IiwKICAgICJxcmNvZGUiOiAiXjEuNS40IiwKICAgICJyZWFjdCI6ICJeMTkuMS4xIiwKICAgICJyZWFjdC1kb20iOiAiXjE5LjEuMSIKICB9LAogICJkZXZEZXBlbmRlbmNpZXMiOiB7CiAgICAiQHR5cGVzL25vZGUiOiAiXjIyLjE4LjAiLAogICAgIkB0eXBlcy9yZWFjdCI6ICJeMTkuMS4xMCIsCiAgICAiQHR5cGVzL3JlYWN0LWRvbSI6ICJeMTkuMS43IiwKICAgICJAdHlwZXMvcXJjb2RlIjogIl4xLjUuNSIsCiAgICAiQHR5cGVzY3JpcHQtZXNsaW50L2VzbGludC1wbHVnaW4iOiAiXjguNDIuMCIsCiAgICAiQHR5cGVzY3JpcHQtZXNsaW50L3BhcnNlciI6ICJeOC40Mi4wIiwKICAgICJAdml0ZWpzL3BsdWdpbi1yZWFjdCI6ICJeNS4wLjIiLAogICAgImVsZWN0cm9uIjogIl4zNy40LjAiLAogICAgImVsZWN0cm9uLWJ1aWxkZXIiOiAiXjI2LjAuMTIiLAogICAgImVsZWN0cm9uLXZpdGUiOiAiXjQuMC4wIiwKICAgICJlc2xpbnQiOiAiXjkuMzUuMCIsCiAgICAiZXNsaW50LXBsdWdpbi1yZWFjdC1ob29rcyI6ICJeNS4yLjAiLAogICAgInR5cGVzY3JpcHQiOiAiXjUuOS4yIiwKICAgICJ2aXRlIjogIjcuMS43IiwKICAgICJ2aXRlc3QiOiAiXjMuMi40IgogIH0sCiAgImJ1aWxkIjogewogICAgImFwcElkIjogImJyLmNvbS52YWxlZ2FtZXMuc3RyZWFtc3R1ZGlvIiwKICAgICJwcm9kdWN0TmFtZSI6ICJWQUxFIFNUUkVBTSBTVFVESU8iLAogICAgImFydGlmYWN0TmFtZSI6ICJWQUxFLVNUUkVBTS1TVFVESU8tJHt2ZXJzaW9ufS0ke2FyY2h9LiR7ZXh0fSIsCiAgICAiZGlyZWN0b3JpZXMiOiB7CiAgICAgICJvdXRwdXQiOiAiLi4vLi4vcmVsZWFzZSIKICAgIH0sCiAgICAiZmlsZXMiOiBbCiAgICAgICJvdXQvKiovKiIsCiAgICAgICJwYWNrYWdlLmpzb24iCiAgICBdLAogICAgIndpbiI6IHsKICAgICAgInRhcmdldCI6IFsibnNpcyIsICJwb3J0YWJsZSJdCiAgICB9LAogICAgIm5zaXMiOiB7CiAgICAgICJhcnRpZmFjdE5hbWUiOiAiVkFMRS1TVFJFQU0tU1RVRElPLSR7dmVyc2lvbn0taW5zdGFsbGVyLSR7YXJjaH0uJHtleHR9IiwKICAgICAgIm9uZUNsaWNrIjogZmFsc2UsCiAgICAgICJhbGxvd1RvQ2hhbmdlSW5zdGFsbGF0aW9uRGlyZWN0b3J5IjogdHJ1ZQogICAgfSwKICAgICJwb3J0YWJsZSI6IHsKICAgICAgImFydGlmYWN0TmFtZSI6ICJWQUxFLVNUUkVBTS1TVFVESU8tJHt2ZXJzaW9ufS1wb3J0YWJsZS0ke2FyY2h9LiR7ZXh0fSIKICAgIH0KICB9Cn0K
+{
+  "name": "@vale/desktop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./out/main/main.js",
+  "description": "VALE STREAM STUDIO para Windows",
+  "author": "Vale Games / Vale Produção",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "preview": "electron-vite preview",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
+    "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
+    "test": "vitest run",
+    "dist": "electron-vite build && node scripts/repair-source-map.mjs && electron-builder --win nsis portable"
+  },
+  "dependencies": {
+    "obs-websocket-js": "^5.0.7",
+    "pdfjs-dist": "^5.4.54",
+    "qrcode": "^1.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.18.0",
+    "@types/react": "^19.1.10",
+    "@types/react-dom": "^19.1.7",
+    "@types/qrcode": "^1.5.5",
+    "@typescript-eslint/eslint-plugin": "^8.42.0",
+    "@typescript-eslint/parser": "^8.42.0",
+    "@vitejs/plugin-react": "^5.0.2",
+    "electron": "^37.4.0",
+    "electron-builder": "^26.0.12",
+    "electron-vite": "^4.0.0",
+    "eslint": "^9.35.0",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "typescript": "^5.9.2",
+    "vite": "7.1.7",
+    "vitest": "^3.2.4"
+  },
+  "build": {
+    "appId": "br.com.valegames.streamstudio",
+    "productName": "VALE STREAM STUDIO",
+    "artifactName": "VALE-STREAM-STUDIO-${version}-${arch}.${ext}",
+    "directories": {
+      "output": "../../release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["nsis", "portable"]
+    },
+    "nsis": {
+      "artifactName": "VALE-STREAM-STUDIO-${version}-installer-${arch}.${ext}",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "portable": {
+      "artifactName": "VALE-STREAM-STUDIO-${version}-portable-${arch}.${ext}"
+    }
+  }
+}
+
