@@ -43,7 +43,7 @@ export class PresentationBridge {
       title: 'VALE STREAM STUDIO - Apresentação',
       backgroundColor: '#0b0e14',
       webPreferences: {
-        preload: join(__dirname, '../preload/preload.mjs'),
+        preload: join(__dirname, '../preload/preload.cjs'),
         contextIsolation: true,
         nodeIntegration: false,
         sandbox: true
