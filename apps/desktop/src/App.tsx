@@ -25,9 +25,14 @@ function errorMessage(reason: unknown): string {
 }
 
 export function App(): ReactElement {
+  if (!window.vale) return <StartupError />
   const presenter = window.location.hash === '#/presenter'
   if (presenter) return <Presenter />
   return <Studio />
+}
+
+function StartupError(): ReactElement {
+  return <main className="startup-error"><section className="panel"><span className="eyebrow accent">INICIALIZAÇÃO INCOMPLETA</span><h1>O estúdio não conseguiu carregar a ponte local.</h1><p>Feche o aplicativo e abra-o novamente. Se o aviso continuar, reinstale a versão mais recente do instalador VALE STREAM STUDIO.</p></section></main>
 }
 
 function Studio(): ReactElement {
