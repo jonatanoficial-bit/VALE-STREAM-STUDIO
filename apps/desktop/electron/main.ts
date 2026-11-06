@@ -47,6 +47,7 @@ function createMainWindow(): BrowserWindow {
       webSecurity: true
     }
   })
+  window.setMenuBarVisibility(false)
   window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
   window.webContents.on('will-navigate', (event, url) => {
     const permitted = isDev ? url.startsWith(process.env.ELECTRON_RENDERER_URL ?? '') : url.startsWith('file:')
