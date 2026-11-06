@@ -40,7 +40,7 @@ function createMainWindow(): BrowserWindow {
     backgroundColor: '#0b0e14',
     title: 'VALE STREAM STUDIO',
     webPreferences: {
-      preload: join(__dirname, '../preload/preload.mjs'),
+      preload: join(__dirname, '../preload/preload.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
       sandbox: true,
@@ -59,7 +59,7 @@ function createMainWindow(): BrowserWindow {
 
 function trustedSender(event: Electron.IpcMainInvokeEvent): void {
   const url = event.senderFrame?.url
-  const permitted = Boolean(url) && (isDev
+  const permitted = !!url && (isDev
     ? url.startsWith(process.env.ELECTRON_RENDERER_URL ?? '')
     : url.startsWith('file:'))
   if (!permitted) throw new Error('Solicitação recusada por origem não confiável.')
