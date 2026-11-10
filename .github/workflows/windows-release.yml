@@ -23,15 +23,22 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm dist
       - shell: pwsh
-        run: Get-FileHash release\* -Algorithm SHA256 | Format-Table -AutoSize | Out-File -Encoding utf8 release\SHA256SUMS.txt
+        run: |
+          $env:VALE_SLIDES_ENGINE = & ./apps/desktop/scripts/prepare-slides-engine.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-slides-engine')
+          pnpm dist
+      - shell: pwsh
+        run: Get-ChildItem release -Filter *.exe -File | Get-FileHash -Algorithm SHA256 | Format-Table -AutoSize | Out-File -Encoding utf8 release\SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
         with:
           name: vale-stream-studio-windows
-          path: release
+          path: |
+            release/*.exe
+            release/SHA256SUMS.txt
       - if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           generate_release_notes: true
-          files: release/*
+          files: |
+            release/*.exe
+            release/SHA256SUMS.txt

@@ -48,6 +48,13 @@ export type Destination = {
 }
 
 export type AppApi = {
+  capture: {
+    sources: () => Promise<Array<{ id: string; name: string }>>
+    select: (id: string) => Promise<void>
+    start: (options: { mode: 'record' } | { mode: 'live'; url: string; key: string }) => Promise<boolean>
+    write: (bytes: Uint8Array) => Promise<void>
+    stop: () => Promise<void>
+  }
   app: {
     getStatus: () => Promise<{ platform: string; freeSpaceGb?: number; obsExecutable?: string }>
     openExternal: (url: string) => Promise<void>
@@ -68,6 +75,7 @@ export type AppApi = {
     onState: (callback: (state: ObsSnapshot) => void) => () => void
   }
   presentation: {
+    openOriginal: () => Promise<void>
     import: () => Promise<PresentationFile | null>
     read: (path: string) => Promise<Uint8Array>
     current: () => Promise<PresentationFile | null>

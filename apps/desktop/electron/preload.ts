@@ -2,6 +2,13 @@ import { contextBridge, ipcRenderer } from 'electron'
 import type { AppApi, ObsSnapshot } from '../shared/contracts'
 
 const api: AppApi = {
+  capture: {
+    sources: () => ipcRenderer.invoke('capture:sources'),
+    select: (id) => ipcRenderer.invoke('capture:select', id),
+    start: (options) => ipcRenderer.invoke('capture:start', options),
+    write: (bytes) => ipcRenderer.invoke('capture:write', bytes),
+    stop: () => ipcRenderer.invoke('capture:stop')
+  },
   app: {
     getStatus: () => ipcRenderer.invoke('app:status'),
     openExternal: (url) => ipcRenderer.invoke('app:openExternal', url),
@@ -26,6 +33,7 @@ const api: AppApi = {
     }
   },
   presentation: {
+    openOriginal: () => ipcRenderer.invoke('presentation:original'),
     import: () => ipcRenderer.invoke('presentation:import'),
     read: (path) => ipcRenderer.invoke('presentation:read', path),
     current: () => ipcRenderer.invoke('presentation:current'),

@@ -2,6 +2,7 @@ import { type ReactElement, useEffect, useMemo, useState } from 'react'
 import QRCode from 'qrcode'
 import type { Meeting, ObsSnapshot, PresentationFile } from '../shared/contracts'
 import { PdfViewer } from './components/PdfViewer'
+import { NativeStudio } from './components/NativeStudio'
 
 type View = 'home' | 'production' | 'documents' | 'destinations' | 'settings' | 'help'
 type Notice = { tone: 'success' | 'error' | 'info'; text: string } | null
@@ -44,6 +45,7 @@ function Studio(): ReactElement {
   const [system, setSystem] = useState<{ obsExecutable?: string } | null>(null)
   const [notice, setNotice] = useState<Notice>(null)
   const [busy, setBusy] = useState(false)
+  const [importing, setImporting] = useState(false)
 
   useEffect(() => {
     void window.vale.app.getStatus().then(setSystem).catch(() => undefined)
@@ -64,14 +66,21 @@ function Studio(): ReactElement {
   }
 
   async function openPresentation(): Promise<void> {
-    await run(async () => {
+    if (importing) return
+    setImporting(true)
+    try {
       const file = await window.vale.presentation.import()
       if (!file) return
       const bytes = await window.vale.presentation.read(file.path)
       setPresentation(file)
       setPresentationBytes(bytes)
       setView('documents')
-    }, 'Apresentação importada localmente. O arquivo original não foi enviado nem alterado.')
+      setNotice({ tone: 'success', text: 'Apresentação pronta.' })
+    } catch (reason) {
+      setNotice({ tone: 'error', text: errorMessage(reason) })
+    } finally {
+      setImporting(false)
+    }
   }
 
   async function createMeeting(): Promise<void> {
@@ -95,7 +104,7 @@ function Studio(): ReactElement {
     }
   // callbacks intentionally close over current user actions
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [view, obs, busy, presentation, presentationBytes, meeting, system])
+  }, [view, obs, busy, presentation, presentationBytes, meeting, system, importing])
 
   return (
     <main className="app-shell">
@@ -120,7 +129,18 @@ function Studio(): ReactElement {
           </div>
         </header>
         {notice && <div className={`notice ${notice.tone}`} role="status"><span>{notice.tone === 'error' ? '!' : '✓'}</span>{notice.text}<button aria-label="Fechar aviso" onClick={() => setNotice(null)}>×</button></div>}
-        <div className="page-content">{content}</div>
+        {importing && <div className="notice info" role="status">Preparando a apresentação. A primeira abertura do motor de slides pode demorar.</div>}
+        <div className="page-content">
+          <NativeStudio hidden={view !== 'production'} />
+          {view === 'production' && <div className="production-actions">
+            <button className="button secondary" onClick={openPresentation}>Abrir slides</button>
+            <button className="button secondary" onClick={createMeeting}>Compartilhar com convidados</button>
+          </div>}
+          {view === 'documents' && <div className="production-actions">
+            <button className="button secondary" disabled={importing} onClick={() => void run(() => window.vale.presentation.openOriginal())}>Abrir slideshow original</button>
+          </div>}
+          {content}
+        </div>
       </section>
       {meeting && <MeetingModal meeting={meeting} onClose={() => setMeeting(null)} onNotice={setNotice} />}
     </main>
@@ -134,7 +154,7 @@ function StatusChip({ label, value, good }: { label: string; value: string; good
 function Home({ onOpen, onCreateMeeting, onOpenPresentation, obs }: { onOpen: (view: View) => void; onCreateMeeting: () => void; onOpenPresentation: () => void; obs: ObsSnapshot }): ReactElement {
   return <>
     <section className="hero-card">
-      <div><span className="eyebrow accent">PRONTO PARA COMEÇAR</span><h2>Crie, ensine, grave e transmita <em>com controle local.</em></h2><p>Seu estúdio VALE usa o OBS como motor de mídia. Reuniões usam VDO.Ninja, um serviço externo gratuito, e lives saem diretamente do seu computador.</p></div>
+      <div><span className="eyebrow accent">PRONTO PARA COMEÇAR</span><h2>Crie, ensine, grave e transmita <em>com controle local.</em></h2><p>Capture tela e slides, grave no computador e envie uma live direta pelo painel Produção. OBS é uma integração opcional. Reuniões usam VDO.Ninja no navegador.</p></div>
       <div className="hero-orbit"><span className="orbit-core">V</span><i /><i /><i /></div>
     </section>
     <section className="quick-grid" aria-label="Ações principais">
@@ -180,7 +200,7 @@ function Production({ obs, busy, presentation, meeting, onCreateMeeting, onOpenP
     } catch (reason) { onNotice({ tone: 'error', text: errorMessage(reason) }) }
   }
 
-  if (!obs.connection.connected) return <section className="empty-state prominent"><span className="large-glyph">◉</span><h2>Conecte o motor de mídia</h2><p>O VALE STREAM STUDIO controla um OBS Studio local pela porta de loopback protegida. Nada é enviado a um servidor VALE.</p><a className="button primary" href="#" onClick={(event) => { event.preventDefault(); document.querySelector<HTMLButtonElement>('[data-settings-link]')?.click() }}>Configurar conexão OBS</a><small>Instale o OBS Studio gratuito, ative WebSocket Server e defina uma senha. Não exponha essa porta à internet.</small></section>
+  if (!obs.connection.connected) return <section className="panel"><h3>Integração opcional com OBS</h3><p>Conecte o OBS para controlar cenas e fontes de uma produção já configurada.</p><button className="button secondary" onClick={() => document.querySelector<HTMLButtonElement>('[data-settings-link]')?.click()}>Configurar conexão OBS</button></section>
 
   return <section className="production-layout">
     <div className="program-column">
@@ -244,4 +264,3 @@ function Presenter(): ReactElement {
   useEffect(() => { void (async () => { try { const current = await window.vale.presentation.current(); if (!current) throw new Error('Nenhuma apresentação está aberta no estúdio.'); setFile(current); setBytes(await window.vale.presentation.read(current.path)) } catch (reason) { setError(errorMessage(reason)) } })() }, [])
   return <main className="presenter-shell">{error ? <div className="empty-state error-state"><h2>Apresentador indisponível</h2><p>{error}</p></div> : file && bytes ? <PdfViewer bytes={bytes} filename={file.filename} fullScreen /> : <div className="empty-state"><span className="large-glyph">▤</span><p>Carregando apresentação local…</p></div>}</main>
 }
-

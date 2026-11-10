@@ -1,8 +1,9 @@
-import { app, BrowserWindow, dialog } from 'electron'
-import { access, mkdir, readFile, rm } from 'node:fs/promises'
+import { app, BrowserWindow, dialog, shell } from 'electron'
+import { access, mkdir, mkdtemp, readFile, rm } from 'node:fs/promises'
 import { basename, extname, join } from 'node:path'
-import { execFile } from 'node:child_process'
+import { execFile, spawn } from 'node:child_process'
 import { promisify } from 'node:util'
+import { pathToFileURL } from 'node:url'
 import type { PresentationFile } from '../../shared/contracts'
 
 const execFileAsync = promisify(execFile)
@@ -10,7 +11,29 @@ const allowedExtensions = ['.pdf', '.ppt', '.pptx']
 
 export class PresentationBridge {
   private currentFile: PresentationFile | null = null
-  private readonly tempRoot = join(app.getPath('temp'), 'vale-stream-studio')
+  private readonly tempRoot = mkdtemp(join(app.getPath('temp'), 'vale-stream-studio-'))
+
+  async openOriginalFromDialog(): Promise<void> {
+    const result = await dialog.showOpenDialog({
+      title: 'Abrir apresentação no programa do Windows',
+      properties: ['openFile'],
+      filters: [{ name: 'PowerPoint', extensions: ['ppt', 'pptx'] }]
+    })
+    const path = result.filePaths[0]
+    if (result.canceled || !path) return
+    if (!['.ppt', '.pptx'].includes(extname(path).toLowerCase())) throw new Error('Selecione um PPT ou PPTX.')
+    const bundled = join(process.resourcesPath, 'slides-engine', 'program', 'soffice.exe')
+    try { await access(bundled) } catch {
+      if (await shell.openPath(path)) throw new Error('O Windows não conseguiu abrir o arquivo. Use o instalador VALE com o motor de slides.')
+      return
+    }
+    const profile = await mkdtemp(join(await this.tempRoot, 'show-'))
+    const slideshow = spawn(bundled, [`-env:UserInstallation=${pathToFileURL(profile).href}`, '--show', path], { stdio: 'ignore', windowsHide: true })
+    await new Promise<void>((resolve, reject) => {
+      slideshow.once('spawn', resolve)
+      slideshow.once('error', () => reject(new Error('Não foi possível abrir a apresentação original.')))
+    })
+  }
 
   async importFromDialog(): Promise<PresentationFile | null> {
     const result = await dialog.showOpenDialog({
@@ -49,11 +72,14 @@ export class PresentationBridge {
         sandbox: true
       }
     })
+    window.setMenuBarVisibility(false)
+    window.webContents.setWindowOpenHandler(() => ({ action: 'deny' }))
+    window.webContents.on('will-navigate', (event) => event.preventDefault())
     await load(window)
   }
 
   async cleanup(): Promise<void> {
-    await rm(this.tempRoot, { recursive: true, force: true })
+    await rm(await this.tempRoot, { recursive: true, force: true })
   }
 
   private async load(originalPath: string): Promise<PresentationFile> {
@@ -68,26 +94,28 @@ export class PresentationBridge {
       filename: basename(originalPath),
       kind: ext.slice(1) as 'ppt' | 'pptx',
       converted: true,
-      notice: 'PPT/PPTX foi convertido localmente pelo LibreOffice. Animações, vídeos e fontes especiais podem não ser preservados; use a opção de compartilhar a janela original se necessário.'
+      notice: 'Os slides foram renderizados localmente. A apresentação interna exibe páginas estáticas. Animações e vídeos exigem o modo original.'
     }
   }
 
   private async convertWithLibreOffice(input: string): Promise<string> {
     const soffice = await this.findSoffice()
     if (!soffice) {
-      throw new Error('LibreOffice não foi encontrado. Instale gratuitamente pelo site oficial ou abra o arquivo original e compartilhe a janela pelo OBS.')
+      throw new Error('Instale o LibreOffice Impress para importar PPT/PPTX aqui. Se já tem PowerPoint, use “Abrir original” e capture sua janela em Produção.')
     }
-    await mkdir(this.tempRoot, { recursive: true })
+    const directory = await mkdtemp(join(await this.tempRoot, 'slides-'))
+    const profile = join(directory, 'profile')
+    await mkdir(profile)
     try {
-      await execFileAsync(soffice, ['--headless', '--convert-to', 'pdf', '--outdir', this.tempRoot, input], {
-        timeout: 120_000,
+      await execFileAsync(soffice, [`-env:UserInstallation=${pathToFileURL(profile).href}`, '--headless', '--convert-to', 'pdf:impress_pdf_Export', '--outdir', directory, input], {
+        timeout: 240_000,
         windowsHide: true,
         maxBuffer: 1024 * 1024
       })
     } catch (error) {
       throw new Error(`Falha ao converter a apresentação localmente: ${error instanceof Error ? error.message.slice(0, 180) : 'erro desconhecido'}`)
     }
-    const output = join(this.tempRoot, `${basename(input, extname(input))}.pdf`)
+    const output = join(directory, `${basename(input, extname(input))}.pdf`)
     try {
       await access(output)
       return output
@@ -98,6 +126,10 @@ export class PresentationBridge {
 
   private async findSoffice(): Promise<string | undefined> {
     const candidates = [
+      join(process.resourcesPath, 'slides-engine', 'program', 'soffice.com'),
+      join(process.resourcesPath, 'slides-engine', 'program', 'soffice.exe'),
+      'C:\\Program Files\\LibreOffice\\program\\soffice.com',
+      'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.com',
       'C:\\Program Files\\LibreOffice\\program\\soffice.exe',
       'C:\\Program Files (x86)\\LibreOffice\\program\\soffice.exe'
     ]
@@ -110,7 +142,7 @@ export class PresentationBridge {
       }
     }
     try {
-      const { stdout } = await execFileAsync('where.exe', ['soffice.exe'], { windowsHide: true })
+      const { stdout } = await execFileAsync('where.exe', ['soffice.com', 'soffice.exe'], { windowsHide: true })
       const resolved = stdout.split(/\r?\n/).find(Boolean)
       return resolved?.trim()
     } catch {
@@ -118,4 +150,3 @@ export class PresentationBridge {
     }
   }
 }
-

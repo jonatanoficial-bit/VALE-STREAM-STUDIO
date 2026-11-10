@@ -1,6 +1,6 @@
 {
   "name": "@vale/desktop",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "main": "./out/main/main.js",
@@ -13,9 +13,10 @@
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json",
     "lint": "eslint . --ext .ts,.tsx --max-warnings=0",
     "test": "vitest run",
-    "dist": "electron-vite build && node scripts/repair-source-map.mjs && electron-builder --win nsis portable"
+    "dist": "electron-vite build && node scripts/repair-source-map.mjs && electron-builder --config scripts/windows-bundle.cjs --win nsis portable"
   },
   "dependencies": {
+    "mediabunny": "^1.65.2",
     "obs-websocket-js": "^5.0.7",
     "pdfjs-dist": "^5.4.54",
     "qrcode": "^1.5.4",
@@ -67,4 +68,3 @@
     }
   }
 }
-

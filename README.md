@@ -1,8 +1,16 @@
 # VALE STREAM STUDIO
 
-Aplicativo Windows para aulas, gravação local, apresentações, reuniões por convite e transmissão RTMP. A interface é própria da VALE; o OBS Studio local é o motor de mídia da Parte 1.
+## Windows 0.2.0
 
-## Estado da Parte 1
+Execute o instalador x64. O instalador completo inclui o motor de apresentações do LibreOffice e permite abrir PPT, PPTX e PDF no VALE sem instalar uma suíte Office separada. Em **Apresentações**, use **Abrir apresentação** para navegar pelas páginas ou **Abrir slideshow original** para abrir o arquivo pelo motor incluído. A compatibilidade de animações e vídeos depende do arquivo.
+
+Em **Produção**, liste as telas e janelas, escolha uma fonte, marque as opções de áudio e inicie a prévia. **Gravar WebM** salva um vídeo local sem OBS. **Live direta** usa FFmpeg com `libx264` no PATH e um destino RTMP/RTMPS configurado por você. O OBS continua disponível como integração opcional. A reunião com convidados usa VDO.Ninja no navegador, onde o anfitrião pode compartilhar a janela da apresentação.
+
+Para empacotar a distribuição Windows, use `apps/desktop/scripts/prepare-slides-engine.ps1`, defina `VALE_SLIDES_ENGINE` com a pasta retornada pelo script e execute `pnpm dist`. O instalador embute o motor em `resources/slides-engine`.
+
+Aplicativo Windows para aulas, gravação local, apresentações, reuniões por convite e transmissão RTMP.
+
+## Integrações da Parte 1
 
 | Recurso | Implementado | Testado neste ambiente | Situação |
 | --- | --- | --- | --- |
@@ -21,8 +29,8 @@ Nenhuma entrada, medidor ou status indica sucesso sem retorno do OBS ou do prove
 
 - Windows 10/11 64-bit.
 - Node.js LTS e pnpm.
-- [OBS Studio](https://obsproject.com/) atualizado, com **WebSocket Server** ativado em `Ferramentas → WebSocket Server Settings`, senha definida e porta local (4455 por padrão).
-- LibreOffice (opcional, somente para converter PPT/PPTX localmente para PDF).
+- [OBS Studio](https://obsproject.com/) é opcional. Para usar a integração, habilite o servidor WebSocket local com senha.
+- Para desenvolver sem empacotar, disponibilize o motor de slides no PATH. O instalador completo traz sua própria cópia.
 - Para reunião: internet, navegador atual e VDO.Ninja disponível.
 - Para live: conta elegível e URL/chave RTMP ou RTMPS fornecida pela plataforma.
 
