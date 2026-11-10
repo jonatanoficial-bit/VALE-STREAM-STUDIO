@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "description": "Estúdio local de aulas, gravação e transmissões para Windows.",
-  "packageManager": "pnpm@10.20.0",
+  "packageManager": "pnpm@11.25.0",
   "scripts": {
     "dev": "pnpm --filter @vale/desktop dev",
     "build": "pnpm --filter @vale/desktop build",
