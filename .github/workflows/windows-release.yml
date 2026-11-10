@@ -33,14 +33,19 @@ jobs:
             throw 'The tag must match the desktop version.'
           }
           if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF_TYPE -eq 'branch' -and
-              (Get-Content -Raw .github/windows-release-version).Trim() -ne $tag) {
+              (Get-Content .github/windows-release-version -TotalCount 1).Trim() -ne $tag) {
             throw 'The release marker must match the desktop version.'
           }
           "tag=$tag" >> $env:GITHUB_OUTPUT
       - shell: pwsh
+        working-directory: apps/desktop
         run: |
-          $env:VALE_SLIDES_ENGINE = & ./apps/desktop/scripts/prepare-slides-engine.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-slides-engine')
-          pnpm dist
+          $env:VALE_SLIDES_ENGINE = & ./scripts/prepare-slides-engine.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-slides-engine')
+          pnpm build
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          node scripts/repair-source-map.mjs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          pnpm exec electron-builder --config scripts/windows-bundle.cjs --win nsis --x64
       - name: Verify installed Windows application
         shell: pwsh
         working-directory: apps/desktop
@@ -51,6 +56,9 @@ jobs:
           $target = Join-Path $env:RUNNER_TEMP 'vale-installed'
           $setup = Start-Process -FilePath $installer.FullName -ArgumentList '/S', "/D=$target" -WindowStyle Hidden -Wait -PassThru
           if ($setup.ExitCode -ne 0) { throw "Installer exited with $($setup.ExitCode)." }
+          $expected = (Get-FileHash '../../release/win-unpacked/resources/app.asar').Hash
+          $actual = (Get-FileHash (Join-Path $target 'resources/app.asar')).Hash
+          if ($expected -ne $actual) { throw 'Installed application archive did not match the build.' }
           $engine = Join-Path $target 'resources/slides-engine/program/soffice.com'
           $fixtures = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'vale-fixtures') -Force
           $profile = ([uri](Join-Path $env:RUNNER_TEMP 'vale-fixture-profile')).AbsoluteUri

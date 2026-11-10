@@ -9,6 +9,8 @@ if (!engine || !existsSync(join(engine, 'program', 'soffice.exe'))) {
 
 module.exports = {
   ...build,
+  nsis: { ...build.nsis, differentialPackage: false, useZip: true },
+  portable: { ...build.portable, useZip: true },
   directories: { ...build.directories, output: resolve(process.env.VALE_RELEASE_DIR ?? '../../release') },
   extraResources: [{ from: resolve(engine), to: 'slides-engine', filter: ['**/*', '!**/*.msi'] }]
 }
