@@ -4,6 +4,8 @@ on:
   workflow_dispatch:
   push:
     tags: ['v*']
+    branches: [main]
+    paths: ['.github/windows-release-version']
 
 permissions:
   contents: write
@@ -21,10 +23,44 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm typecheck
       - run: pnpm test
+      - id: release_version
+        shell: pwsh
+        run: |
+          $version = (Get-Content -Raw apps/desktop/package.json | ConvertFrom-Json).version
+          if ($version -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid desktop version.' }
+          $tag = "v$version"
+          if ($env:GITHUB_REF_TYPE -eq 'tag' -and $env:GITHUB_REF_NAME -ne $tag) {
+            throw 'The tag must match the desktop version.'
+          }
+          if ($env:GITHUB_EVENT_NAME -eq 'push' -and $env:GITHUB_REF_TYPE -eq 'branch' -and
+              (Get-Content -Raw .github/windows-release-version).Trim() -ne $tag) {
+            throw 'The release marker must match the desktop version.'
+          }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
       - shell: pwsh
         run: |
           $env:VALE_SLIDES_ENGINE = & ./apps/desktop/scripts/prepare-slides-engine.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-slides-engine')
           pnpm dist
+      - name: Verify installed Windows application
+        shell: pwsh
+        working-directory: apps/desktop
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Get-ChildItem ../../release -File -Filter '*-installer-x64.exe' | Select-Object -First 1
+          if (!$installer) { throw 'Installer was not generated.' }
+          $target = Join-Path $env:RUNNER_TEMP 'vale-installed'
+          $setup = Start-Process -FilePath $installer.FullName -ArgumentList '/S', "/D=$target" -WindowStyle Hidden -Wait -PassThru
+          if ($setup.ExitCode -ne 0) { throw "Installer exited with $($setup.ExitCode)." }
+          $engine = Join-Path $target 'resources/slides-engine/program/soffice.com'
+          $fixtures = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'vale-fixtures') -Force
+          $profile = ([uri](Join-Path $env:RUNNER_TEMP 'vale-fixture-profile')).AbsoluteUri
+          foreach ($format in 'ppt:MS PowerPoint 97','pptx:Impress MS PowerPoint 2007 XML') {
+            & $engine "-env:UserInstallation=$profile" --headless --convert-to $format --outdir $fixtures.FullName (Resolve-Path tests/slides.fodp).Path
+            if ($LASTEXITCODE -ne 0) { throw "Fixture generation failed: $format" }
+          }
+          $env:VALE_TEST_SLIDES_ONLY = '1'
+          $env:VALE_TEST_FIXTURES = $fixtures.FullName
+          node scripts/windows-smoke.mjs (Join-Path $target 'VALE STREAM STUDIO.exe')
       - shell: pwsh
         run: Get-ChildItem release -Filter *.exe -File | Get-FileHash -Algorithm SHA256 | Format-Table -AutoSize | Out-File -Encoding utf8 release\SHA256SUMS.txt
       - uses: actions/upload-artifact@v4
@@ -33,9 +69,11 @@ jobs:
           path: |
             release/*.exe
             release/SHA256SUMS.txt
-      - if: startsWith(github.ref, 'refs/tags/v')
+      - if: github.event_name == 'push'
         uses: softprops/action-gh-release@v2
         with:
+          tag_name: ${{ steps.release_version.outputs.tag }}
+          target_commitish: ${{ github.sha }}
           generate_release_notes: true
           files: |
             release/*.exe
