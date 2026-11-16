@@ -6,7 +6,7 @@ type PdfLike = {
   numPages: number
   getPage: (pageNumber: number) => Promise<{
     getViewport: (options: { scale: number }) => { width: number; height: number }
-    render: (options: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number } }) => { promise: Promise<void> }
+    render: (options: { canvasContext: CanvasRenderingContext2D; viewport: { width: number; height: number }; transform?: number[] }) => { promise: Promise<void>; cancel: () => void }
   }>
   destroy: () => Promise<void>
 }
@@ -30,6 +30,7 @@ export function PdfViewer({ bytes, filename, fullScreen = false }: Props): React
   useEffect(() => {
     let disposed = false
     setPage(1)
+    setPages(0)
     setError(undefined)
     ;(async () => {
       try {
@@ -55,9 +56,13 @@ export function PdfViewer({ bytes, filename, fullScreen = false }: Props): React
     const doc = documentRef.current
     if (!canvas || !doc || !pages) return
     let cancelled = false
+    let cancelRender: (() => void) | undefined
+    delete canvas.dataset.renderedPage
+    setError(undefined)
     ;(async () => {
       try {
         const pdfPage = await doc.getPage(page)
+        if (cancelled) return
         const viewport = pdfPage.getViewport({ scale: zoom })
         const ratio = window.devicePixelRatio || 1
         canvas.width = Math.floor(viewport.width * ratio)
@@ -66,16 +71,16 @@ export function PdfViewer({ bytes, filename, fullScreen = false }: Props): React
         canvas.style.height = `${Math.floor(viewport.height)}px`
         const context = canvas.getContext('2d')
         if (!context) throw new Error('Canvas indisponível.')
-        context.setTransform(ratio, 0, 0, ratio, 0, 0)
-        context.clearRect(0, 0, viewport.width, viewport.height)
-        const task = pdfPage.render({ canvasContext: context, viewport })
+        const task = pdfPage.render({ canvasContext: context, viewport, transform: [ratio, 0, 0, ratio, 0, 0] })
+        cancelRender = () => task.cancel()
         await task.promise
+        if (!cancelled) canvas.dataset.renderedPage = String(page)
       } catch (reason) {
         if (!cancelled) setError(reason instanceof Error ? reason.message : 'Falha ao renderizar a página.')
       }
     })()
-    return () => { cancelled = true }
-  }, [page, pages, zoom])
+    return () => { cancelled = true; cancelRender?.() }
+  }, [bytes, page, pages, zoom])
 
   useEffect(() => {
     if (!fullScreen) return
@@ -100,8 +105,8 @@ export function PdfViewer({ bytes, filename, fullScreen = false }: Props): React
           <button onClick={() => setZoom((value) => Math.min(2.4, value + 0.15))}>+</button>
         </div>
       </div>
-      {error ? <div className="empty-state error-state">{error}</div> : <div className="pdf-canvas-wrap"><canvas ref={canvasRef} /></div>}
+      {error && <div className="empty-state error-state" role="alert">{error}</div>}
+      <div className="pdf-canvas-wrap" hidden={!!error}><canvas ref={canvasRef} /></div>
     </section>
   )
 }
-

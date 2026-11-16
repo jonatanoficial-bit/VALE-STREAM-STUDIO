@@ -191,11 +191,13 @@ try {
       }
       await viewer.getByRole('button', { name: 'Próxima' }).click()
       if (await viewer.getByLabel('Ir para página').inputValue() !== '2') throw new Error('O segundo slide não abriu.')
-      await viewer.locator('canvas').waitFor()
+      await viewer.locator('canvas[data-rendered-page="2"]').waitFor()
       const opened = app.waitForEvent('window', { timeout: 15_000 })
       await page.getByRole('button', { name: 'Abrir janela de apresentação' }).click()
       const presenter = await opened
-      await presenter.getByLabel(`Apresentação slides.${extension}`).getByRole('button', { name: 'Próxima' }).click()
+      const presenterView = presenter.getByLabel(`Apresentação slides.${extension}`)
+      await presenterView.getByRole('button', { name: 'Próxima' }).click()
+      await presenterView.locator('canvas[data-rendered-page="2"]').waitFor()
       await presenter.close()
       checks.push(`${extension.toUpperCase()} aberto e navegado na interface e no apresentador`)
     }
