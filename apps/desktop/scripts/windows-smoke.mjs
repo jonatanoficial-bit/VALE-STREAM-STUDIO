@@ -7,15 +7,23 @@ const target = process.argv[2]
 const environment = { ...process.env }
 delete environment.ELECTRON_RUN_AS_NODE
 const output = resolve(process.env.VALE_VERIFICATION_DIR ?? '../../release/verification')
+const testDevices = process.env.VALE_TEST_DEVICES === '1'
+const mediaArgs = testDevices ? ['--use-fake-device-for-media-stream'] : []
 await mkdir(output, { recursive: true })
 const app = await electron.launch(target
-  ? { executablePath: resolve(target), env: environment }
-  : { args: ['.'], env: environment })
+  ? { executablePath: resolve(target), args: mediaArgs, env: environment }
+  : { args: ['.', ...mediaArgs], env: environment })
 const checks = []
 try {
   const page = await app.firstWindow()
   page.setDefaultTimeout(15_000)
-  await page.getByRole('button', { name: 'Iniciar aula', exact: false }).waitFor()
+  page.on('pageerror', (error) => console.error(error))
+  app.on('console', (message) => { if (message.type() === 'error') console.error(message.text()) })
+  try {
+    await page.getByRole('button', { name: 'Iniciar aula', exact: false }).waitFor({ timeout: 30_000 })
+  } catch (error) {
+    throw new Error(await page.locator('body').innerText(), { cause: error })
+  }
   const bridge = await page.evaluate(() => Boolean(window.vale?.app && window.vale?.obs))
   if (!bridge) throw new Error('Preload bridge missing')
   checks.push('Interface inicial e ponte local carregadas')
@@ -33,6 +41,16 @@ try {
   if (!invite.startsWith('https://vdo.ninja/')) throw new Error('Invalid meeting URL')
   checks.push('Criação real de convite via IPC')
   await page.getByRole('dialog').locator('.modal-close').click()
+  if (testDevices) {
+    await page.getByRole('navigation').getByRole('button', { name: 'Produção' }).click()
+    await page.getByLabel('Câmera', { exact: true }).selectOption('default')
+    await page.getByLabel('Microfone', { exact: true }).check()
+    await page.getByRole('button', { name: 'Iniciar prévia' }).click()
+    await page.waitForFunction(() => document.querySelector('video')?.videoWidth > 0)
+    await page.waitForFunction(() => Number(document.querySelector('meter[aria-label="Saída da transmissão"]')?.getAttribute('value')) > -50)
+    await page.getByRole('button', { name: 'Encerrar prévia' }).click()
+    checks.push('Prévia de câmera e medidor do microfone com dispositivos virtuais de teste')
+  }
   if (!process.env.VALE_TEST_SLIDES_ONLY) {
   await page.getByRole('navigation').getByRole('button', { name: 'Produção' }).click()
   await app.evaluate(async ({ BrowserWindow }) => {
@@ -114,6 +132,46 @@ try {
     } finally {
       if (receiver.exitCode === null) receiver.kill()
     }
+    const simultaneous = resolve(output, 'windows-live-recording.webm')
+    const simultaneousFlv = resolve(output, 'windows-live-recording.flv')
+    const combinedReceiver = spawn(process.env.VALE_TEST_FFMPEG, ['-hide_banner', '-loglevel', 'error',
+      '-listen', '1', '-timeout', '15', '-i', 'rtmp://127.0.0.1:19358/live/vale-test', '-c', 'copy', '-y', simultaneousFlv],
+    { windowsHide: true, stdio: 'ignore' })
+    const combinedClosed = new Promise((done) => combinedReceiver.once('close', done))
+    try {
+      await app.evaluate(({ dialog }, path) => {
+        dialog.showSaveDialog = async () => ({ canceled: false, filePath: path })
+      }, simultaneous)
+      await page.getByLabel('Servidor RTMP').fill('rtmp://127.0.0.1:19358/live')
+      await page.getByLabel('Chave da live direta').fill('vale-test')
+      await page.getByLabel('Gravar também no PC').check()
+      await page.getByRole('button', { name: 'Transmitir e gravar' }).click()
+      await page.getByText('Envio iniciado. Gravando uma cópia local.', { exact: true }).waitFor()
+      await new Promise((done) => setTimeout(done, 8000))
+      await page.getByRole('button', { name: 'Finalizar live' }).click()
+      await page.getByText('Envio encerrado. Gravação salva.', { exact: true }).waitFor()
+      if (await combinedClosed !== 0) throw new Error('Receptor da saída simultânea falhou.')
+      const local = await readFile(simultaneous)
+      const remote = await readFile(simultaneousFlv)
+      if (local.length < 1024 || local.readUInt32BE(0) !== 0x1a45dfa3 ||
+          remote.length < 1024 || remote.subarray(0, 3).toString() !== 'FLV') throw new Error('Saída simultânea incompleta.')
+      checks.push('Live RTMP e gravação WebM simultâneas')
+    } finally {
+      if (combinedReceiver.exitCode === null) combinedReceiver.kill()
+    }
+    const recovered = resolve(output, 'windows-live-disconnected.webm')
+    await app.evaluate(({ dialog }, path) => {
+      dialog.showSaveDialog = async () => ({ canceled: false, filePath: path })
+    }, recovered)
+    await page.getByLabel('Servidor RTMP').fill('rtmp://127.0.0.1:19359/live')
+    await page.getByLabel('Chave da live direta').fill('vale-test')
+    await page.getByRole('button', { name: 'Transmitir e gravar' }).click()
+    await page.getByText('Live interrompida. A gravação local continua.', { exact: true }).waitFor({ timeout: 25_000 })
+    await page.getByRole('button', { name: 'Finalizar live' }).click()
+    await page.getByText('Live interrompida. Gravação salva.', { exact: true }).waitFor()
+    const saved = await readFile(recovered)
+    if (saved.length < 1024 || saved.readUInt32BE(0) !== 0x1a45dfa3) throw new Error('Gravação após falha incompleta.')
+    checks.push('Falha RTMP preserva a gravação local')
   }
   await page.getByRole('button', { name: 'Encerrar prévia' }).click()
   }

@@ -251,10 +251,20 @@ function Help(): ReactElement {
 }
 
 function MeetingModal({ meeting, onClose, onNotice }: { meeting: Meeting; onClose: () => void; onNotice: (notice: Notice) => void }): ReactElement {
+  async function shareScreen() {
+    const url = new URL(meeting.guestUrl)
+    url.searchParams.set('screenshare', '')
+    try {
+      await window.vale.meeting.open(url.toString())
+      onNotice({ tone: 'info', text: 'No navegador, selecione Tela inteira para compartilhar o monitor com a sala.' })
+    } catch (reason) {
+      onNotice({ tone: 'error', text: errorMessage(reason) })
+    }
+  }
   const [qr, setQr] = useState<string>()
   useEffect(() => { void QRCode.toDataURL(meeting.guestUrl, { margin: 1, width: 280, color: { dark: '#0b0e14', light: '#ffffff' } }).then(setQr).catch(() => undefined) }, [meeting.guestUrl])
   async function copy(value: string, message: string): Promise<void> { try { await navigator.clipboard.writeText(value); onNotice({ tone: 'success', text: message }) } catch { onNotice({ tone: 'error', text: 'Não foi possível acessar a área de transferência.' }) } }
-  return <div className="modal-backdrop" role="presentation"><section className="meeting-modal" role="dialog" aria-modal="true" aria-label="Nova reunião"><button className="modal-close" onClick={onClose}>×</button><span className="eyebrow accent">SALA CRIADA</span><h2>Convide sua turma ou convidados</h2><p>Esta sala usa o VDO.Ninja, serviço externo gratuito. O link do convidado e o link de diretor são diferentes.</p><div className="meeting-content"><div><label>Link para convidados<div className="copy-field"><input readOnly value={meeting.guestUrl} /><button onClick={() => void copy(meeting.invitation, 'Convite copiado.')}>Copiar convite</button></div></label><label>Código forte da sala<div className="copy-field"><input readOnly value={meeting.roomId} /><button onClick={() => void copy(meeting.roomId, 'Código de sala copiado.')}>Copiar</button></div></label><div className="meeting-actions"><button className="button primary" onClick={() => void window.vale.meeting.open(meeting.directorUrl)}>Abrir como anfitrião</button><button className="button secondary" onClick={() => void window.vale.meeting.open(meeting.guestUrl)}>Testar convite</button></div></div>{qr && <figure className="qr"><img src={qr} alt="QR Code do convite" /><figcaption>Escaneie para entrar no celular</figcaption></figure>}</div><p className="provider-notice">{meeting.limitations}</p></section></div>
+  return <div className="modal-backdrop" role="presentation"><section className="meeting-modal" role="dialog" aria-modal="true" aria-label="Nova reunião"><button className="modal-close" onClick={onClose}>×</button><span className="eyebrow accent">SALA PRIVADA</span><h2>Convide sua turma ou convidados</h2><p>Compartilhe o convite com quem deve entrar. O painel do anfitrião inclui o chat da sala.</p><div className="meeting-content"><div><label>Link para convidados<div className="copy-field"><input readOnly value={meeting.guestUrl} /><button onClick={() => void copy(meeting.invitation, 'Convite copiado.')}>Copiar convite</button></div></label><label>Código da sala<div className="copy-field"><input readOnly value={meeting.roomId} /><button onClick={() => void copy(meeting.roomId, 'Código de sala copiado.')}>Copiar</button></div></label><div className="meeting-actions"><button className="button primary" onClick={() => void window.vale.meeting.open(meeting.directorUrl)}>Abrir anfitrião e chat</button><button className="button secondary" onClick={() => void shareScreen()}>Compartilhar tela na sala</button><button className="button secondary" onClick={() => void window.vale.meeting.open(meeting.guestUrl)}>Testar convite</button></div></div>{qr && <figure className="qr"><img src={qr} alt="QR Code do convite" /><figcaption>Escaneie para entrar no celular</figcaption></figure>}</div><p className="provider-notice">{meeting.limitations}</p></section></div>
 }
 
 function Presenter(): ReactElement {

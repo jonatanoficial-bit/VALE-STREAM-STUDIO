@@ -11,3 +11,7 @@ Este repositório não redistribui OBS Studio, LibreOffice ou binários FFmpeg.
 - **QRCode**: dependência JavaScript; licença disponível na distribuição do pacote.
 
 Antes de redistribuir binários adicionais, audite as licenças e inclua os avisos exigidos pela versão efetivamente distribuída.
+# FFmpeg no instalador Windows
+
+O instalador inclui FFmpeg 9.0.2 Essentials de Gyan Doshi como processo separado, acompanhado do LICENSE e README originais. Consulte o [build original e as informações de compilação](https://github.com/GyanD/codexffmpeg/releases/tag/9.0.2), a [revisão do FFmpeg](https://github.com/FFmpeg/FFmpeg/commit/946fcce07b) e o [código do x264](https://code.videolan.org/videolan/x264).
+

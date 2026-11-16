@@ -41,6 +41,7 @@ jobs:
         working-directory: apps/desktop
         run: |
           $env:VALE_SLIDES_ENGINE = & ./scripts/prepare-slides-engine.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-slides-engine')
+          $env:VALE_ENCODER_DIR = & ./scripts/prepare-encoder.ps1 -Destination (Join-Path $env:RUNNER_TEMP 'vale-encoder')
           pnpm build
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           node scripts/repair-source-map.mjs
@@ -60,6 +61,9 @@ jobs:
           $actual = (Get-FileHash (Join-Path $target 'resources/app.asar')).Hash
           if ($expected -ne $actual) { throw 'Installed application archive did not match the build.' }
           $engine = Join-Path $target 'resources/slides-engine/program/soffice.com'
+          $encoder = Join-Path $target 'resources/encoder/ffmpeg.exe'
+          & $encoder -version | Out-Null
+          if ($LASTEXITCODE -ne 0) { throw 'Installed encoder failed to launch.' }
           $fixtures = New-Item -ItemType Directory -Path (Join-Path $env:RUNNER_TEMP 'vale-fixtures') -Force
           $profile = ([uri](Join-Path $env:RUNNER_TEMP 'vale-fixture-profile')).AbsoluteUri
           foreach ($format in 'ppt:MS PowerPoint 97','pptx:Impress MS PowerPoint 2007 XML') {

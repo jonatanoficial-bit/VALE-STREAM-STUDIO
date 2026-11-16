@@ -1,12 +1,12 @@
 # VALE STREAM STUDIO
 
-## Windows 0.2.0
+## Windows 0.3.0
 
 Execute o instalador x64. O instalador completo inclui o motor de apresentações do LibreOffice e permite abrir PPT, PPTX e PDF no VALE sem instalar uma suíte Office separada. Em **Apresentações**, use **Abrir apresentação** para navegar pelas páginas ou **Abrir slideshow original** para abrir o arquivo pelo motor incluído. A compatibilidade de animações e vídeos depende do arquivo.
 
-Em **Produção**, liste as telas e janelas, escolha uma fonte, marque as opções de áudio e inicie a prévia. **Gravar WebM** salva um vídeo local sem OBS. **Live direta** usa FFmpeg com `libx264` no PATH e um destino RTMP/RTMPS configurado por você. O OBS continua disponível como integração opcional. A reunião com convidados usa VDO.Ninja no navegador, onde o anfitrião pode compartilhar a janela da apresentação.
+Em **Produção**, selecione um monitor inteiro, uma janela ou uma câmera. A câmera pode acompanhar a tela como sobreposição. Escolha a entrada de som que o Windows reconhece e confira os níveis nos medidores de pico. **Gravar WebM** salva um vídeo local sem OBS. **Live direta** usa o FFmpeg incluído e um destino RTMP/RTMPS. Marque **Gravar também no PC** para salvar uma cópia durante a live. A gravação continua se o envio falhar. O login e o chat do YouTube abrem no navegador. A reunião privada usa VDO.Ninja com convite protegido por senha.
 
-Para empacotar a distribuição Windows, use `apps/desktop/scripts/prepare-slides-engine.ps1`, defina `VALE_SLIDES_ENGINE` com a pasta retornada pelo script e execute `pnpm dist`. O instalador embute o motor em `resources/slides-engine`.
+Para empacotar no Windows, execute `apps/desktop/scripts/prepare-slides-engine.ps1` e `apps/desktop/scripts/prepare-encoder.ps1`. Defina `VALE_SLIDES_ENGINE` e `VALE_ENCODER_DIR` com as pastas retornadas e execute `pnpm dist`.
 
 Aplicativo Windows para aulas, gravação local, apresentações, reuniões por convite e transmissão RTMP.
 

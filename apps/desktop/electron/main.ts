@@ -148,7 +148,7 @@ app.whenReady().then(() => {
     callback(contents === mainWindow?.webContents && isStudioUrl(contents.getURL()) &&
       (permission === 'display-capture' || (permission === 'media' && 'mediaTypes' in details &&
         ((details.mediaTypes?.length === 0 && !!selected && selected.expires >= Date.now()) ||
-          (details.mediaTypes?.length === 1 && details.mediaTypes[0] === 'audio')))))
+          (!!details.mediaTypes?.length && details.mediaTypes.every((type) => type === 'audio' || type === 'video'))))))
   })
   session.defaultSession.setDisplayMediaRequestHandler((request, callback) => {
     const choice = selected

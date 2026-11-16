@@ -51,9 +51,9 @@ export type AppApi = {
   capture: {
     sources: () => Promise<Array<{ id: string; name: string }>>
     select: (id: string) => Promise<void>
-    start: (options: { mode: 'record' } | { mode: 'live'; url: string; key: string }) => Promise<boolean>
-    write: (bytes: Uint8Array) => Promise<void>
-    stop: () => Promise<void>
+    start: (options: { mode: 'record' } | { mode: 'live'; url: string; key: string; record?: boolean }) => Promise<boolean>
+    write: (bytes: Uint8Array) => Promise<{ liveFailed: boolean }>
+    stop: () => Promise<{ liveFailed: boolean }>
   }
   app: {
     getStatus: () => Promise<{ platform: string; freeSpaceGb?: number; obsExecutable?: string }>
