@@ -1,6 +1,8 @@
 # VALE STREAM STUDIO
 
-## Windows 0.3.0
+## Windows 0.4.0
+
+Em **Produção**, importe imagens e vídeos em **Biblioteca de mídia**. Escolha o item em **Mídia no ar** ou volte à tela e à câmera durante a gravação ou live. O vídeo tem controles de reprodução, posição, repetição e volume próprio. Em **Marca e identificação**, adicione um logotipo, ajuste canto, tamanho e opacidade e escreva uma faixa com nome ou título. A prévia mostra a mesma composição enviada à gravação e à transmissão. A biblioteca é mantida durante a sessão do aplicativo.
 
 Execute o instalador x64. O instalador completo inclui o motor de apresentações do LibreOffice e permite abrir PPT, PPTX e PDF no VALE sem instalar uma suíte Office separada. Em **Apresentações**, use **Abrir apresentação** para navegar pelas páginas ou **Abrir slideshow original** para abrir o arquivo pelo motor incluído. A compatibilidade de animações e vídeos depende do arquivo.
 

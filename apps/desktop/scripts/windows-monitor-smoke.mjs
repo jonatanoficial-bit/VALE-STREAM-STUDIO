@@ -15,7 +15,7 @@ try {
   const preview = page.getByLabel('Prévia da captura')
   await preview.waitFor()
   await page.waitForFunction(() => document.querySelector('video')?.videoWidth > 0)
-  const surface = await preview.evaluate((element) => element.srcObject.getVideoTracks()[0].getSettings().displaySurface)
+  const surface = await page.locator('video').first().evaluate((element) => element.srcObject.getVideoTracks()[0].getSettings().displaySurface)
   if (surface && surface !== 'monitor') throw new Error(`Foi capturado ${surface}, em vez do monitor.`)
   await page.getByRole('button', { name: 'Encerrar prévia' }).click()
   console.log('Prévia do monitor inteiro aprovada. Nenhum quadro foi salvo.')

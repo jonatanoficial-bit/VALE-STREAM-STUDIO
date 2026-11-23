@@ -1,5 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { AppendOnlyStreamTarget, CanvasSource, MediaStreamAudioTrackSource, Output, WebMOutputFormat } from 'mediabunny'
+import { drawStudioScene, type LogoCorner, type SceneAsset } from './studioScene'
+
+const imageExtensions = /\.(png|jpe?g|webp|gif|bmp)$/i
+const videoExtensions = /\.(mp4|webm|mov|m4v|ogv)$/i
+const corners: Array<[LogoCorner, string]> = [
+  ['top-left', 'Superior esquerdo'], ['top-right', 'Superior direito'],
+  ['bottom-left', 'Inferior esquerdo'], ['bottom-right', 'Inferior direito']
+]
 
 export function NativeStudio({ hidden }: { hidden: boolean }) {
   const [sources, setSources] = useState<Array<{ id: string; name: string }>>([])
@@ -20,10 +28,98 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
   const [showLive, setShowLive] = useState(false)
   const [recordLive, setRecordLive] = useState(false)
   const [chatId, setChatId] = useState('')
+  const [assets, setAssets] = useState<SceneAsset[]>([])
+  const [activeAsset, setActiveAsset] = useState<SceneAsset>()
+  const [logo, setLogo] = useState<SceneAsset>()
+  const [corner, setCorner] = useState<LogoCorner>('top-right')
+  const [logoSize, setLogoSize] = useState(16)
+  const [logoOpacity, setLogoOpacity] = useState(100)
+  const [title, setTitle] = useState('')
+  const [mediaVolume, setMediaVolume] = useState(80)
+  const [loop, setLoop] = useState(false)
+  const [playing, setPlaying] = useState(false)
+  const [mediaTime, setMediaTime] = useState(0)
+  const [mediaDuration, setMediaDuration] = useState(0)
   const video = useRef<HTMLVideoElement>(null)
   const cameraVideo = useRef<HTMLVideoElement>(null)
+  const program = useRef<HTMLCanvasElement>(null)
+  const mediaVideo = useRef<HTMLVideoElement | null>(null)
+  const mediaImage = useRef<HTMLImageElement | null>(null)
+  const logoImage = useRef<HTMLImageElement | null>(null)
+  const mediaGain = useRef<GainNode | null>(null)
+  const useCameraOverlay = useRef(false)
+  const objectUrls = useRef(new Set<string>())
+  const scene = useRef({ corner, logoSize, logoOpacity, title })
   const finishOutput = useRef<(() => void) | undefined>(undefined)
   const sourceCleanup = useRef<(() => void) | undefined>(undefined)
+
+  useEffect(() => { scene.current = { corner, logoSize, logoOpacity, title } }, [corner, logoSize, logoOpacity, title])
+
+  useEffect(() => {
+    const urls = objectUrls.current
+    return () => {
+      for (const url of urls) URL.revokeObjectURL(url)
+      urls.clear()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (mediaGain.current) mediaGain.current.gain.value = mediaVolume / 100
+    if (mediaVideo.current) mediaVideo.current.loop = loop
+  }, [stream, mediaVolume, loop])
+
+  useEffect(() => {
+    const image = logo && new Image()
+    if (image) {
+      image.onerror = () => setStatus('Não foi possível abrir a imagem do logotipo.')
+      image.src = logo.url
+    }
+    logoImage.current = image || null
+    return () => { if (image) image.onerror = null }
+  }, [logo])
+
+  useEffect(() => {
+    const player = mediaVideo.current
+    mediaImage.current = null
+    setPlaying(false)
+    setMediaTime(0)
+    setMediaDuration(0)
+    if (player) {
+      player.pause()
+      player.onerror = null
+      player.removeAttribute('src')
+      player.load()
+    }
+    if (activeAsset?.kind === 'image') {
+      const image = new Image()
+      image.onerror = () => setStatus('Não foi possível abrir a imagem selecionada.')
+      image.src = activeAsset.url
+      mediaImage.current = image
+      return () => { image.onerror = null }
+    }
+    if (player && activeAsset?.kind === 'video') {
+      player.onerror = () => setStatus('O vídeo não pôde ser reproduzido. Tente MP4 com H.264/AAC ou WebM com VP8/Opus.')
+      player.src = activeAsset.url
+      player.load()
+    }
+  }, [activeAsset, stream])
+
+  function paint(context: CanvasRenderingContext2D) {
+    const media = mediaImage.current ?? (mediaVideo.current?.getAttribute('src') ? mediaVideo.current : null)
+    drawStudioScene(context, {
+      ...scene.current, capture: video.current, camera: useCameraOverlay.current || media ? cameraVideo.current : null,
+      media, logo: logoImage.current
+    })
+  }
+
+  useEffect(() => {
+    const context = program.current?.getContext('2d')
+    if (hidden || !context) return
+    const refresh = () => paint(context)
+    refresh()
+    const timer = window.setInterval(refresh, 40)
+    return () => window.clearInterval(timer)
+  }, [hidden])
 
   useEffect(() => {
     const element = video.current
@@ -47,6 +143,36 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
     sourceCleanup.current?.()
     finishOutput.current?.()
   }, [])
+
+  function localAsset(file: File, kind: SceneAsset['kind']): SceneAsset {
+    const url = URL.createObjectURL(file)
+    objectUrls.current.add(url)
+    return { id: crypto.randomUUID(), name: file.name, url, kind }
+  }
+
+  function addMedia(files: FileList | null) {
+    if (!files?.length) return
+    const added: SceneAsset[] = []
+    for (const file of Array.from(files).slice(0, Math.max(0, 24 - assets.length))) {
+      if (imageExtensions.test(file.name)) added.push(localAsset(file, 'image'))
+      else if (videoExtensions.test(file.name)) added.push(localAsset(file, 'video'))
+    }
+    if (!added.length) { setStatus('Importe uma imagem ou um vídeo compatível. A biblioteca aceita até 24 itens.'); return }
+    setAssets((current) => [...current, ...added])
+    if (!activeAsset) setActiveAsset(added[0])
+    setStatus(`${added.length} arquivo(s) adicionado(s) à biblioteca.`)
+  }
+
+  function releaseAsset(asset: SceneAsset) {
+    URL.revokeObjectURL(asset.url)
+    objectUrls.current.delete(asset.url)
+  }
+
+  function removeAsset(asset: SceneAsset) {
+    if (activeAsset?.id === asset.id) setActiveAsset(undefined)
+    setAssets((current) => current.filter((item) => item.id !== asset.id))
+    releaseAsset(asset)
+  }
 
   function report(error: unknown) {
     setStatus(error instanceof Error ? error.message : 'A operação não pôde ser concluída.')
@@ -82,15 +208,31 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
       if (cameraId) camera = await navigator.mediaDevices.getUserMedia({ video: cameraId === 'default' ? true : { deviceId: { exact: cameraId } } })
       if (microphone) mic = await navigator.mediaDevices.getUserMedia({ audio: micId ? { deviceId: { exact: micId } } : true })
       const primary = display ?? camera
-      if (!primary) throw new Error('Escolha uma tela ou uma câmera.')
-      const result = new MediaStream(primary.getVideoTracks())
+      if (!primary && !activeAsset) throw new Error('Escolha uma tela, uma câmera ou um arquivo de mídia.')
+      const result = new MediaStream(primary?.getVideoTracks() ?? [])
       const audioStreams = [{ name: 'Áudio do PC', input: display }, { name: 'Microfone', input: mic }]
         .filter(({ input }) => !!input?.getAudioTracks().length)
-      if (audioStreams.length) {
+      {
         audio = new AudioContext()
         await audio.resume()
         const mix = audio.createMediaStreamDestination()
         const meters: Array<{ name: string; analyser: AnalyserNode; samples: Float32Array<ArrayBuffer> }> = []
+        const player = document.createElement('video')
+        player.preload = 'auto'
+        player.playsInline = true
+        player.onplay = () => setPlaying(true)
+        player.onpause = player.onended = () => setPlaying(false)
+        player.ontimeupdate = () => setMediaTime(player.currentTime)
+        player.onloadedmetadata = () => setMediaDuration(Number.isFinite(player.duration) ? player.duration : 0)
+        player.onerror = () => setStatus('O vídeo não pôde ser reproduzido. Tente MP4 com H.264/AAC ou WebM com VP8/Opus.')
+        mediaVideo.current = player
+        const gain = audio.createGain()
+        mediaGain.current = gain
+        audio.createMediaElementSource(player).connect(gain)
+        gain.connect(mix)
+        const mediaMeter = audio.createAnalyser()
+        gain.connect(mediaMeter)
+        meters.push({ name: 'Áudio do vídeo', analyser: mediaMeter, samples: new Float32Array(mediaMeter.fftSize) })
         for (const { name, input } of audioStreams) {
           const source = audio.createMediaStreamSource(input!)
           const analyser = audio.createAnalyser()
@@ -113,17 +255,26 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
         window.clearInterval(meterTimer)
         setLevels([])
         setCameraStream(undefined)
+        const player = mediaVideo.current
+        if (player) {
+          player.pause()
+          player.removeAttribute('src')
+          player.load()
+        }
+        mediaVideo.current = null
+        mediaGain.current = null
         for (const item of [display, mic, camera, result]) item?.getTracks().forEach((track) => track.stop())
         if (audio) void audio.close()
       }
-      result.getVideoTracks()[0].addEventListener('ended', () => {
+      result.getVideoTracks()[0]?.addEventListener('ended', () => {
         finishOutput.current?.()
         sourceCleanup.current?.()
         sourceCleanup.current = undefined
         setStream(undefined)
       }, { once: true })
       setStream(result)
-      if (display && camera) setCameraStream(camera)
+      useCameraOverlay.current = Boolean(display && camera)
+      if (camera) setCameraStream(camera)
       void navigator.mediaDevices.enumerateDevices().then(setDevices).catch(() => undefined)
       setStatus(systemAudio && !display?.getAudioTracks().length ? 'Prévia ativa. O Windows não disponibilizou o áudio do sistema para essa captura.' : 'Prévia ativa.')
     } catch (error) {
@@ -138,10 +289,8 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
   }
 
   async function start(next: 'record' | 'live') {
-    const previewVideo = video.current
-    if (!stream?.getVideoTracks().some((track) => track.readyState === 'live') || !previewVideo?.videoWidth ||
-        previewVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) {
-      setStatus('Aguarde a imagem da prévia antes de iniciar a saída.')
+    if (!stream) {
+      setStatus('Inicie a prévia antes de gravar ou transmitir.')
       return
     }
     setBusy(true)
@@ -152,9 +301,8 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
       opened = await window.vale.capture.start(next === 'record' ? { mode: 'record' } : { mode: 'live', url, key, record: recordLive })
       if (!opened) return
       const canvas = document.createElement('canvas')
-      const scale = Math.min(1, 1280 / previewVideo.videoWidth, 720 / previewVideo.videoHeight)
-      canvas.width = Math.max(2, Math.floor(previewVideo.videoWidth * scale / 2) * 2)
-      canvas.height = Math.max(2, Math.floor(previewVideo.videoHeight * scale / 2) * 2)
+      canvas.width = 1280
+      canvas.height = 720
       const context = canvas.getContext('2d')
       if (!context) throw new Error('Não foi possível preparar o vídeo.')
       let bytesWritten = 0
@@ -200,16 +348,9 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
         } finally { finishOutput.current = undefined; setMode(undefined); setBusy(false) }
       }
       const draw = () => {
-        if (pending || stopping || previewVideo.readyState < HTMLMediaElement.HAVE_CURRENT_DATA) return
+        if (pending || stopping) return
         pending = Promise.resolve().then(async () => {
-          context.drawImage(previewVideo, 0, 0, canvas.width, canvas.height)
-          const overlay = cameraVideo.current
-          if (overlay?.videoWidth && overlay.readyState >= HTMLMediaElement.HAVE_CURRENT_DATA) {
-            const scale = Math.min(canvas.width / 4 / overlay.videoWidth, canvas.height / 4 / overlay.videoHeight)
-            const width = Math.round(overlay.videoWidth * scale)
-            const height = Math.round(overlay.videoHeight * scale)
-            context.drawImage(overlay, canvas.width - width - 12, canvas.height - height - 12, width, height)
-          }
+          paint(context)
           await picture.add((performance.now() - started) / 1000, interval / 1000)
         }).finally(() => { pending = undefined })
         void pending.catch((error) => void finish(error))
@@ -250,10 +391,79 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
         {devices.filter((device) => device.kind === 'videoinput' && device.deviceId && device.deviceId !== 'default').map((device, index) =>
           <option key={device.deviceId} value={device.deviceId}>{device.label || `Câmera ${index + 1}`}</option>)}
       </select></label>
-      <button className="button primary" disabled={(!selected && !cameraId) || !!stream || busy} onClick={() => void preview()}>Iniciar prévia</button>
+      <button className="button primary" disabled={(!selected && !cameraId && !activeAsset) || !!stream || busy} onClick={() => void preview()}>Iniciar prévia</button>
     </div>
-    <video ref={video} hidden={!stream} autoPlay muted playsInline aria-label="Prévia da captura" />
-    <video ref={cameraVideo} hidden={!cameraStream} autoPlay muted playsInline aria-label="Prévia da câmera" />
+    <video ref={video} className="studio-input-video" aria-hidden="true" autoPlay muted playsInline />
+    <video ref={cameraVideo} className="studio-input-video" aria-hidden="true" autoPlay muted playsInline />
+    <canvas ref={program} className="studio-program" width={1280} height={720} aria-label="Prévia da captura" />
+    <div className="studio-media-panel">
+      <fieldset>
+        <legend>Biblioteca de mídia</legend>
+        <label>Adicionar vídeos e imagens
+          <input type="file" multiple accept=".mp4,.webm,.mov,.m4v,.ogv,.png,.jpg,.jpeg,.webp,.gif,.bmp"
+            onChange={(event) => { addMedia(event.currentTarget.files); event.currentTarget.value = '' }} />
+        </label>
+        <div className="production-actions">
+          <select aria-label="Mídia no ar" value={activeAsset?.id ?? ''} onChange={(event) => setActiveAsset(assets.find((item) => item.id === event.target.value))}>
+            <option value="">Tela ou câmera</option>
+            {assets.map((asset) => <option key={asset.id} value={asset.id}>{asset.name}</option>)}
+          </select>
+          <button className="button secondary" disabled={!activeAsset} onClick={() => activeAsset && removeAsset(activeAsset)}>Remover mídia selecionada</button>
+        </div>
+        {activeAsset?.kind === 'video' && <>
+          <div className="production-actions">
+            <button className="button primary" disabled={!stream || !mediaDuration} onClick={() => {
+              const player = mediaVideo.current
+              if (!player) return
+              if (player.paused) void player.play().catch(report)
+              else player.pause()
+            }}>{playing ? 'Pausar vídeo' : 'Reproduzir vídeo'}</button>
+            <button className="button secondary" disabled={!stream || !mediaDuration} onClick={() => {
+              const player = mediaVideo.current
+              if (player) { player.pause(); player.currentTime = 0 }
+            }}>Voltar ao início</button>
+            <label><input type="checkbox" checked={loop} onChange={(event) => setLoop(event.target.checked)} /> Repetir</label>
+          </div>
+          <label>Posição do vídeo
+            <input type="range" min="0" max={mediaDuration || 1} step="0.1" value={Math.min(mediaTime, mediaDuration)} disabled={!mediaDuration}
+              onChange={(event) => { if (mediaVideo.current) mediaVideo.current.currentTime = Number(event.target.value) }} />
+          </label>
+          <label>Volume do vídeo · {mediaVolume}%
+            <input type="range" min="0" max="100" value={mediaVolume} onChange={(event) => setMediaVolume(Number(event.target.value))} />
+          </label>
+          {!stream && <small>Inicie a prévia para carregar os controles do vídeo.</small>}
+        </>}
+      </fieldset>
+      <fieldset>
+        <legend>Marca e identificação</legend>
+        <label>Adicionar logotipo
+          <input type="file" accept=".png,.jpg,.jpeg,.webp,.gif,.bmp" onChange={(event) => {
+            const file = event.currentTarget.files?.[0]
+            event.currentTarget.value = ''
+            if (!file || !imageExtensions.test(file.name)) return
+            if (logo) releaseAsset(logo)
+            setLogo(localAsset(file, 'image'))
+          }} />
+        </label>
+        {logo && <>
+          <div className="production-actions">
+            <select aria-label="Posição do logotipo" value={corner} onChange={(event) => setCorner(event.target.value as LogoCorner)}>
+              {corners.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+            </select>
+            <button className="button secondary" onClick={() => { releaseAsset(logo); setLogo(undefined) }}>Remover logotipo</button>
+          </div>
+          <label>Tamanho do logotipo · {logoSize}%
+            <input type="range" min="6" max="35" value={logoSize} onChange={(event) => setLogoSize(Number(event.target.value))} />
+          </label>
+          <label>Opacidade do logotipo · {logoOpacity}%
+            <input type="range" min="10" max="100" value={logoOpacity} onChange={(event) => setLogoOpacity(Number(event.target.value))} />
+          </label>
+        </>}
+        <label>Faixa de identificação
+          <input type="text" maxLength={100} placeholder="Nome, evento ou título" value={title} onChange={(event) => setTitle(event.target.value)} />
+        </label>
+      </fieldset>
+    </div>
     {levels.map(({ name, db }) => <div className="audio-level" key={name}>
       <span>{name}</span><meter aria-label={name} min={-60} max={0} low={-42} high={-6} optimum={-18} value={Math.min(0, db)} />
       <span>{db <= -60 ? '−∞' : db.toFixed(1)} dBFS</span>
