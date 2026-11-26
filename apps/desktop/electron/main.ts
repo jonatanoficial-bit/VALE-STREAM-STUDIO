@@ -44,6 +44,7 @@ async function loadRenderer(window: BrowserWindow, presenter = false): Promise<v
 }
 
 function createMainWindow(): BrowserWindow {
+  const brandIcon = app.isPackaged ? join(process.resourcesPath, 'brand/app.ico') : join(__dirname, '../../build/icon.ico')
   const window = new BrowserWindow({
     width: 1500,
     height: 940,
@@ -51,6 +52,7 @@ function createMainWindow(): BrowserWindow {
     minHeight: 700,
     backgroundColor: '#0b0e14',
     title: 'VALE STREAM STUDIO',
+    icon: existsSync(brandIcon) ? brandIcon : undefined,
     webPreferences: {
       preload: join(__dirname, '../preload/preload.cjs'),
       contextIsolation: true,

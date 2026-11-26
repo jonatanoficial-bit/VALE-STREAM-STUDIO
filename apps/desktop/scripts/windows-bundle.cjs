@@ -17,6 +17,9 @@ module.exports = {
   portable: { ...build.portable, useZip: true },
   directories: { ...build.directories, output: resolve(process.env.VALE_RELEASE_DIR ?? '../../release') },
   extraResources: [
+    { from: resolve('build/icon.ico'), to: 'brand/app.ico' },
+    { from: resolve('../../COMMERCIAL-READINESS.md'), to: 'notices/COMMERCIAL-READINESS.md' },
+    { from: resolve('../../LICENSE'), to: 'notices/VALE-LICENSE.txt' },
     { from: resolve(engine), to: 'slides-engine', filter: ['**/*', '!**/*.msi'] },
     { from: resolve(encoder), to: 'encoder', filter: ['ffmpeg.exe', 'LICENSE', 'README.txt'] }
   ]

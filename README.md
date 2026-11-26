@@ -1,6 +1,12 @@
 # VALE STREAM STUDIO
 
-## Windows 0.4.0
+## Windows 0.5.0
+
+A interface usa superfícies grafite, acentos verdes, ícones vetoriais e controles com foco de teclado e estados de interação. A mesa de produção organiza prévia, fontes, saídas, níveis de áudio e mídia em áreas separadas. A página inicial direciona gravação e transmissão ao motor independente e não apresenta o estado do OBS como se fosse o estado das saídas nativas.
+
+Identidade visual e ícones: [branding/README.md](branding/README.md). Situação e pendências para distribuição comercial: [COMMERCIAL-READINESS.md](COMMERCIAL-READINESS.md). O instalador atual não possui assinatura Authenticode configurada.
+
+Ainda precisam de validação no equipamento do usuário: câmera, interface externa, captura de áudio do PC e transmissão em uma conta real. Login e chat do YouTube continuam no navegador; a biblioteca de mídia dura uma sessão. Não há autenticação OAuth interna, projetos persistentes ou transmissão simultânea para vários destinos.
 
 Em **Produção**, importe imagens e vídeos em **Biblioteca de mídia**. Escolha o item em **Mídia no ar** ou volte à tela e à câmera durante a gravação ou live. O vídeo tem controles de reprodução, posição, repetição e volume próprio. Em **Marca e identificação**, adicione um logotipo, ajuste canto, tamanho e opacidade e escreva uma faixa com nome ou título. A prévia mostra a mesma composição enviada à gravação e à transmissão. A biblioteca é mantida durante a sessão do aplicativo.
 

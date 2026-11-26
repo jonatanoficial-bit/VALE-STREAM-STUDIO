@@ -16,7 +16,9 @@ const recording = resolve(output, 'branded-video.webm')
 try {
   const page = await app.firstWindow()
   page.setDefaultTimeout(30_000)
+  await page.screenshot({ path: resolve(output, 'studio-home.png'), fullPage: true })
   await page.getByRole('navigation').getByRole('button', { name: 'Produção' }).click()
+  await page.screenshot({ path: resolve(output, 'studio-production.png'), fullPage: true })
   const logo = await page.evaluate(() => {
     const canvas = document.createElement('canvas')
     canvas.width = canvas.height = 64
@@ -43,6 +45,7 @@ try {
   }, recording)
   await page.getByRole('button', { name: 'Gravar WebM' }).click()
   await page.getByText('Gravação em andamento.', { exact: true }).waitFor()
+  await page.screenshot({ path: resolve(output, 'studio-recording.png'), fullPage: true })
   await new Promise((done) => setTimeout(done, 2400))
   await page.getByRole('button', { name: 'Finalizar gravação' }).click()
   await page.getByText('Gravação salva.', { exact: true }).waitFor()

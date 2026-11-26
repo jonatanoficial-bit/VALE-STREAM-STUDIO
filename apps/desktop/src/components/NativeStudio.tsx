@@ -370,10 +370,10 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
     } finally { setBusy(false) }
   }
 
-  return <section hidden={hidden} className="panel native-studio" aria-label="Produção independente">
-    <h2>Produção independente</h2>
-    <p>Capture uma tela, uma janela ou o apresentador do VALE. Use a reunião para compartilhar com convidados pelo navegador.</p>
-    <div className="production-actions">
+  return <section hidden={hidden} className={`panel native-studio${showLive ? ' live-open' : ''}`} aria-label="Produção independente">
+    <div className="studio-heading"><div><span className="eyebrow accent">MESA DE PRODUÇÃO</span><h2>Seu conteúdo no centro.</h2><p>Combine captura, mídia e identidade visual. Confira a prévia antes de gravar ou transmitir.</p></div><span className={`studio-state ${mode ? 'on-air' : ''}`}><i className={mode ? 'status-dot live' : stream ? 'status-dot ready' : 'status-dot'} />{mode === 'record' ? 'GRAVANDO' : mode === 'live' ? 'ENVIANDO LIVE' : stream ? 'PRÉVIA ATIVA' : 'EM PREPARAÇÃO'}</span></div>
+    <div className="production-actions studio-sources">
+      <div className="studio-section-title"><span className="eyebrow">ENTRADAS</span><h3>Fontes da produção</h3></div>
       <button className="button secondary" disabled={!!stream || busy} onClick={() => void refresh()}>Listar telas e janelas</button>
       <select aria-label="Tela ou janela" value={selected} disabled={!!stream || busy} onChange={(event) => void choose(event.target.value)}>
         <option value="">Escolha uma fonte</option>
@@ -395,7 +395,7 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
     </div>
     <video ref={video} className="studio-input-video" aria-hidden="true" autoPlay muted playsInline />
     <video ref={cameraVideo} className="studio-input-video" aria-hidden="true" autoPlay muted playsInline />
-    <canvas ref={program} className="studio-program" width={1280} height={720} aria-label="Prévia da captura" />
+    <div className="studio-monitor"><div className="studio-monitor-bar"><span><i className={stream ? 'status-dot ready' : 'status-dot'} /> PRÉVIA DO PROGRAMA</span><small>1280 × 720 · 25 FPS</small></div><div className="studio-canvas-wrap"><canvas ref={program} className="studio-program" width={1280} height={720} aria-label="Prévia da captura" />{!stream && <div className="studio-empty-preview"><span className="preview-crosshair" aria-hidden="true">+</span><b>Sua próxima produção começa aqui</b><span>Escolha uma tela, câmera ou mídia.<br />Depois, inicie a prévia.</span></div>}</div><div className="studio-monitor-caption"><span>{activeAsset?.name ?? (selected ? sources.find((source) => source.id === selected)?.name ?? 'Captura selecionada' : cameraId ? 'Câmera selecionada' : 'Nenhuma fonte em prévia')}</span><small>PROGRAMA / 16:9</small></div></div>
     <div className="studio-media-panel">
       <fieldset>
         <legend>Biblioteca de mídia</legend>
@@ -464,11 +464,11 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
         </label>
       </fieldset>
     </div>
-    {levels.map(({ name, db }) => <div className="audio-level" key={name}>
+    <div className="studio-mixer"><div className="studio-section-title"><span className="eyebrow">MONITORAMENTO</span><h3>Níveis de áudio <small>dBFS</small></h3></div>{!levels.length && <p className="mixer-idle">Inicie a prévia para monitorar suas entradas.</p>}{levels.map(({ name, db }) => <div className="audio-level" key={name}>
       <span>{name}</span><meter aria-label={name} min={-60} max={0} low={-42} high={-6} optimum={-18} value={Math.min(0, db)} />
       <span>{db <= -60 ? '−∞' : db.toFixed(1)} dBFS</span>
-    </div>)}
-    <div className="production-actions">
+    </div>)}</div>
+    <div className="production-actions studio-transport">
       <button className="button record" disabled={!stream || !!mode || busy} onClick={() => void start('record')}>Gravar WebM</button>
       <button className="button secondary" onClick={() => setShowLive(!showLive)}>Live direta</button>
       {mode && <button className="button danger" disabled={busy} onClick={() => finishOutput.current?.()}>Finalizar {mode === 'record' ? 'gravação' : 'live'}</button>}
@@ -481,11 +481,11 @@ export function NativeStudio({ hidden }: { hidden: boolean }) {
       <label><input type="checkbox" checked={recordLive} disabled={!!mode || busy} onChange={(event) => setRecordLive(event.target.checked)} /> Gravar também no PC</label>
       <button className="button primary" disabled={!stream || !!mode || busy}>{recordLive ? 'Transmitir e gravar' : 'Iniciar envio direto'}</button>
     </form>}
-    {showLive && <div className="production-actions">
+    {showLive && <div className="production-actions studio-chat">
       <button className="button secondary" onClick={() => void window.vale.app.openExternal('https://studio.youtube.com/').catch(report)}>Entrar no YouTube Studio</button>
       <input aria-label="ID da live no YouTube" placeholder="ID do vídeo da live" value={chatId} onChange={(event) => setChatId(event.target.value)} />
       <button className="button secondary" disabled={!/^[A-Za-z0-9_-]{11}$/.test(chatId.trim())} onClick={() => void window.vale.app.openExternal(`https://www.youtube.com/live_chat?is_popout=1&v=${chatId.trim()}`).catch(report)}>Abrir chat da live</button>
     </div>}
-    <p role="status">{status}</p>
+    <p role="status" className="studio-status">{status}</p>
   </section>
 }
